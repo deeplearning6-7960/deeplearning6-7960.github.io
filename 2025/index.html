@@ -1,0 +1,1231 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>6.7960 Deep Learning, Fall 2025</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link href="../css/style.css" rel="stylesheet" type="text/css" /> </head>
+
+<body>
+	<div class="container">
+		<table border="0" align="center">
+			<tr>
+				<td width="623" align="center" valign="middle">
+					<h3>MIT EECS</h3> <span class="title">6.7960 Deep Learning</span></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center">
+					<h3>Fall 2025</h3></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center"><span class="menubar">
+        [ <a href="#schedule">Schedule</a> |
+					<a href="#collaboration_policy">Policies</a> |
+         <a href="https://piazza.com/mit/fall2025/67960">Piazza</a> |
+         <a href="https://canvas.mit.edu/courses/33933">Canvas</a> |
+				 <a href="https://www.gradescope.com/courses/1110115">Gradescope</a> |
+				 <a href="https://canvas.mit.edu/courses/33933/external_tools/594">Lecture Recordings</a> |
+				 <a href="#previous_years">Previous years</a>
+         ]</span>
+			 </td>
+			</tr>
+			<!--<tr>
+				 <td colspan="3" align="center">
+					 <h2 style="background-color:#e9ecef; color:red; padding-top:4px; padding-bottom:4px">
+						 <a href="https://minyoungg.github.io/MIT-deeplearning-blogs/blog/" > [Final project blogs] </a>
+					 </h2>
+				 </td>
+			</tr>-->
+		</table>
+		<br />
+		<h2>Course Overview</h2>
+		<p>
+			<b>Description</b>: Fundamentals of deep learning, including both theory and applications. Topics include neural net architectures (MLPs, CNNs, RNNs, graph nets, transformers), geometry and invariances in deep learning, backpropagation and automatic differentiation, learning theory and generalization in high-dimensions, and applications to computer vision, natural language processing, and robotics.
+		</p>
+
+		<p>
+		<b>Pre-requisites</b>: 18.05 and (6.3720, 6.3900, or 6.C01)
+ 		</p>
+
+		<p>
+			<b>Note</b>: This course is appropriate for advanced undergraduates and graduate students, and is 3-0-9 units. Due to heavy enrollment, we will very unfortunately not be able to take cross-registrations this semester. <!--For non-students who want access to Piazza or Canvas, email Anthea Li (yichenl@mit.edu) to be added manually. For non-MIT students, refer to <a href="https://registrar.mit.edu/registration-academics/registration-information/cross-registration">cross-registration</a>.-->
+		</p>
+
+		<!--<h2>Announcements</h2>-->
+		<br>
+		<hr/>
+		<br>
+		<h2>Course Information</h2>
+		<div class="col-md-12">
+			<div class="head-people">
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/sara.jpg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Instructor
+                    <a href="https://beerys.github.io/" style="font-size:16px"><b>Sara Beery</b></a>
+                </h2>
+						<p><span>beery at mit dot edu</span></p>
+						<p>OH: Thu 9-10 AM 45-741H</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/kaiming.jpg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Instructor
+                    <a href="https://people.csail.mit.edu/kaiming/" style="font-size:16px"><b>Kaiming He</b></a>
+
+                </h2>
+						<p><span>kaiming at mit dot edu</span></p>
+						<p>OH: Mon 9-10 AM 45-701H</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/omar.jpg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Instructor
+                    <a href="https://omarkhattab.com/" style="font-size:16px"><b>Omar Khattab</b></a>
+
+                </h2>
+						<p><span>okhattab at mit dot edu</span></p>
+						<p>OH: TBD</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/taylor.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Course Assistant
+							<a href="" style="font-size:16px"><b>Taylor Braun</b></a>
+						</h2>
+						<p><span>tvbraun at mit dot edu</span></p>
+						<p> </p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/victor.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Head TA
+							<a style="font-size:16px"><b>Victor Butoi</b></a>
+						</h2>
+						<p><span>vbutoi at mit dot edu</span></p>
+						<p>OH: Wed 1-2 PM 36-155</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/ishan.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">Head TA
+							<a style="font-size:16px"><b>Ishan Ganguly</b></a>
+						</h2>
+						<p><span>iganguly at mit dot edu</span></p>
+						<p>OH: Tue 3-4 PM 36-112</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/mahmoud.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Mahmoud Abdelmoneum</b></a>
+						</h2>
+						<p><span>mabdel03 at mit dot edu</span></p>
+						<p>OH: Tue 4-5 PM 36-112</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/abhay.jpeg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Abhay Bestrapalli</b></a>
+						</h2>
+						<p><span>abhayb at mit dot edu</span></p>
+						<p>OH: Mon 3-4 PM 26-168</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/riddhi.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Riddhi Bhagwat</b></a>
+						</h2>
+						<p><span>riddhib at mit dot edu</span></p>
+						<p>OH: Fri 10-11 AM 24-317</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/russ.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Russ Chua</b></a>
+						</h2>
+						<p><span>russchua at mit dot edu</span></p>
+						<p>OH: Tue 10-11 AM 36-156</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/kelly.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Kelly Cui</b></a>
+						</h2>
+						<p><span>kellycui at mit dot edu</span></p>
+						<p>OH: Tue 3-4 PM 36-112</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/ali.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Ali Cy</b></a>
+						</h2>
+						<p><span>califyn at mit dot edu</span></p>
+						<p>OH: Mon 5-6 PM 26-168</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/gerardo.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Gerardo Flores</b></a>
+						</h2>
+						<p><span>gfm at mit dot edu</span></p>
+						<p>OH: Wed 1-2 PM 36-155</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/orion.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Orion Foo</b></a>
+						</h2>
+						<p><span>ofoo at mit dot edu</span></p>
+						<p>OH: Mon 3-4 PM 26-168</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/ishita.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Ishita Goluguri</b></a>
+						</h2>
+						<p><span>ishi at mit dot edu</span></p>
+						<p>OH: Thu 11 AM - 12 PM 34-303</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/egor.jpg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Egor Lifar</b></a>
+						</h2>
+						<p><span>l1far at mit dot edu</span></p>
+						<p>OH: Mon 5-6 PM 26-168</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/maggie.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Maggie Lin</b></a>
+						</h2>
+						<p><span>maggiejl at mit dot edu</span></p>
+						<p>OH: Tue 3-4 PM 36-112</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/edgar.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Edgar Morfin</b></a>
+						</h2>
+						<p><span>emorfin at mit dot edu</span></p>
+						<p>OH: Wed 12-1 PM 24-319</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/shreya.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Shreya Ravikumar</b></a>
+						</h2>
+						<p><span>shreyark at mit dot edu</span></p>
+						<p>OH: Mon 4-5 PM 26-168</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/tara.jpg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Tara Sarma</b></a>
+						</h2>
+						<p><span>tssarma at mit dot edu</span></p>
+						<p>OH: Mon 4-5 PM 26-168</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/gracie.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Gracie Sheng</b></a>
+						</h2>
+						<p><span>grac at mit dot edu</span></p>
+						<p>OH: Fri 10-11 AM 24-317</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/ashkan.jpeg'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Ashkan Soleymani</b></a>
+						</h2>
+						<p><span>ashkanso at mit dot edu</span></p>
+						<p>OH: Thu 11 AM - 12 PM 34-303</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/vinith.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Vinith Suriyakumar</b></a>
+						</h2>
+						<p><span>vinithms at mit dot edu</span></p>
+						<p>OH: Wed 1-2 PM 36-155</p>
+					</div>
+				</div>
+		
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/vanessa.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Vanessa Xiao</b></a>
+						</h2>
+						<p><span>vzxiao at mit dot edu</span></p>
+						<p>OH: Thu 4-5 PM 36-156</p>
+					</div>
+				</div>
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/lana.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>Lana Xu</b></a>
+						</h2>
+						<p><span>ylanaxu at mit dot edu</span></p>
+						<p>OH: Thu 4-5 PM 36-156</p>
+					</div>
+				</div>
+
+				<div class="person">
+					<div class="person-thumbnail">
+						<div class="person-avatar"> <span class="person-image" style="background: url('./img/william.png'); background-size:cover;"></span> </div>
+					</div>
+					<div class="person-text">
+						<h2 class="person-name">TA
+							<a style="font-size:16px"><b>William Yang</b></a>
+						</h2>
+						<p><span>wyyang at mit dot edu</span></p>
+						<p>OH: Tue 10-11 AM 36-156</p>
+					</div>
+				</div>
+			</div>
+
+	<div class="clearfix visible-sm-block"></div>
+		</div>
+		<div class="col-md-12">
+			<h3>- Logistics</h3>
+			<ul>
+				<li>Class meetings: Tuesday, Thursday 1:00 - 2:30 PM in room <b>45-230</b>. </li>
+				<!-- <li><span style="color:red">*New*</span> Office hours calendar: <a href="https://calendar.google.com/calendar/u/1?cid=Y19jNjgxODViOTM2ODgwYmVmOTA2ZDZlZDI4ZjJkOGIyZDRlYmYyZDZhMDYyMDNjZDBjMGI0MDdkYzRkNmZiMzMxQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20">link</a></li> -->
+				<li>We will be using both Piazza and Canvas for announcements.</li>
+				<li>Refer to: <a href="https://piazza.com/mit/fall2025/67960">Piazza</a> (all questions),
+         				      <a href="https://canvas.mit.edu/courses/33933">Canvas</a> (announcements),
+	 							<a href="https://www.gradescope.com/courses/1110115">Gradescope</a> (homework release, submission, and grades), and
+								<a href="https://calendar.google.com/calendar/u/0?cid=MWI1NTk0MTkyYTNlYjFkNTA0YTI3NTk5MTFlODU1ZGU4NjI0NjBiNDA5ZmI1MWFiNmE0ZWQ0M2IzMTg0ZWU2NkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t">Google Calendar</a> (office hours).
+				</li>
+				<li><b>All extension requests must go through S3 or GradSupport. For any personal or logistical questions, such as regarding absenses, accomodations, etc, please email the course email, 6.7960-instructors-fl2025@mit.edu, not the instructors directly.</b></li>
+			</ul>
+		</div>
+		<div class="col-md-12">
+			<h3>- Grading Policy</h3>
+      <li><b> Problem sets (50%) </b></li>
+			<ul>
+				<li>5 psets, 10% each, each 1-2 weeks long</li>
+				<li>Pen and paper + coding</li>
+			</ul>
+	  <li><b> Midterm Exam (25%) </b></li>
+			<ul>
+				<li>2 hour exam, closed book, no computers, 1 double-sided page of handwritten notes</li>
+			</ul>
+      <li><b> Final project (25%) - Research project focused on deeper understanding </b></li>
+		<ul>
+			<li><a href="https://www.dropbox.com/scl/fi/mwqtppp1dlub9l0i75qyh/6_7960_Fall_2025_Project_Guidelines.pdf?rlkey=j07t54chig54yqzmnv9l47dlg&st=xeh3qw8j&dl=0">Project guidelines</a></li>
+			<li>Write up demonstrating novel experimentation and visualization</li>
+			<li>Groups of up to 3</li>
+			<li>Google Colab Pro will be provided, do not plan for large compute costs (be creative)</li>
+		</ul>
+      <ul>
+        <!-- <li> The final project will be a research project on a deep learning topic of your choice.</li>
+
+        <li>You will run experiments and do analysis to explore your research question. You will then write up your research in the format of a blog post,
+				which will include an explanation of the background material, the new investigations, and the results you found.</li>
+
+				<li>You are encouraged to include
+				plots, animations, and interactive graphics to make your findings clear.
+				Some examples of nice research blog posts are here:
+ 					<a href=https://distill.pub/>[1]</a>
+ 					<a href=https://www.engraved.blog/why-machine-learning-algorithms-are-hard-to-tune/>[2]</a>
+					<a href=http://karpathy.github.io/2015/05/21/rnn-effectiveness/>[3]</a>
+					<a href=https://ai.facebook.com/blog/dino-paws-computer-vision-with-self-supervised-transformers-and-10x-more-efficient-training>[4]</a>.</li>
+
+        <li>The final project will be graded for clarity and insight as well as novelty and depth of the experiments and analysis. Detailed guidance will be
+				given later in the semester.</li> -->
+      </ul>
+			<li>
+				<a href="#collaboration_policy">Collaboration policy</a>
+			</li>
+			<li>
+				<a href="#AI_policy">AI assistants policy (ChatGPT, etc)</a>
+			</li>
+			<li>
+				<a href="#attendance_policy">Attendance policy</a>
+			</li>
+			<li>
+      	<a href="#late_policy">Late policy</a>
+      </li>
+
+    </div>
+
+
+		<div class="col-md-12">
+			<h3>- Materials</h3>
+			<ul>
+				<li>Readings will come from a variety of sources and will be posted on the schedule each week.</li>
+				<li>Some readings are derived from the course textbook, which can be found for free online: <a href="https://visionbook.mit.edu/">Foundations of Computer Vision</a>.</li>
+				<li>The best textbook devoted entirely to deep learning is probably <a href="https://udlbook.github.io/udlbook/">Understanding Deep Learning</a>, which is freely available online.</li>
+				<li>Content from 6.390 Intro to ML can also be found <a href="https://introml.mit.edu/notes/?fbclid=PAQ0xDSwMxDVNleHRuA2FlbQIxMAABp0r1wjiBU7px9Kf6ziMGCn6NGB3GhTW-QhmDeMG5oCD9T6qAQW5ItdrbpohF_aem_jL3v0-a5F6jpmw5iOtA7Aw">here</a> for those who want to brush up on ML concepts.</li>
+			</ul>
+		</div>
+
+
+
+    <p>&nbsp;</p><hr /><br />
+    <h2 id="schedule">Class Schedule</h2>
+    <br />
+		<p style="color:red;"> ** class schedule is subject to change ** </p>
+    <table class="schedule" align="center" border="1" width="950">
+      <tbody>
+        <tr>
+          <td align="center" width="90"><strong>Date</strong></td>
+          <td align="center" width="240"><strong>Topics</strong></td>
+          <td align="center" width="130"><strong>Speaker</strong></td>
+          <td align="center" width="260"><strong>Course Materials</strong></td>
+          <td align="center" width="120"><strong>Assignments</strong></td>
+        </tr>
+
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 1</td>
+        </tr>
+        <tr>
+          <td sdnum="1033;0;@" align="left">Thu 9/4</td>
+          <td align="left">Course overview, introduction to deep neural networks and their basic building blocks</td>
+          <td> Sara Beery </td>
+          <td align="left">
+				<a href="https://www.dropbox.com/scl/fi/wfjnzp5bb2r8vcgvalv51/1_intro_2025.pdf?rlkey=3v6z1zqvp2knscopkzvstjs9n&st=tjyeqe2e&dl=0">slides</a><br/>
+				<br>
+				optional readings:<br>
+					<a href="https://visionbook.mit.edu/notations.html">notation for this course</a><br>
+					<a href="https://visionbook.mit.edu/neural_nets.html">neural networks</a><br/>
+				<br/>
+          </td>
+          <td>
+						<!-- <a href="#">Assignment #1</a>  -->
+					</td>
+        </tr>
+
+
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 2</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Mon 9/8</td>
+          <td align="left"> PyTorch Tutorial: 4-5 PM, 32-123
+					</td>
+          <td></td>
+          <td><a href="https://colab.research.google.com/drive/1nZg9_wYpVYWS9xZAiSft5_gyluuQpBWY?usp=sharing">pytorch tutorial colab</a>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+        <tr>
+          <td sdnum="1033;0;@" align="left">Tue 9/9</td>
+          <td align="left">How to train a neural net<br />
+						<details>
+						  <summary><b style="color:#38b000"> + details</b></summary>
+						  <i>SGD, Backprop and autodiff, differentiable programming</i>
+						</details></td>
+          <td>Sara Beery</td>
+          <td align="left">
+				    <a href="https://www.dropbox.com/scl/fi/kv1ddh7ss8oxohtvzlsjh/2_backprop_2025.pdf?rlkey=wck8o09edebcay7mp6gohygj5&st=17v992ys&dl=0">slides</a><br/>
+					<br/>
+					required readings:<br>
+						<a href="https://visionbook.mit.edu/gradient_descent.html"> gradient-based learning</a><br/>
+					<a href="https://visionbook.mit.edu/backpropagation.html"> backprop</a><br/>
+          </td>
+          <td>
+						pset 1 out (<a href="https://canvas.mit.edu/courses/33933/files/5724552?module_item_id=1435133">solutions</a>)
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Tue 9/9</td>
+          <td align="left"> PyTorch Tutorial: 3-4 PM, 2-190
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Wed 9/10</td>
+          <td align="left"> PyTorch Tutorial: 7-8 PM, 32-123
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+	
+        <tr>
+          <td sdnum="1033;0;@" align="left">Thu 9/11</td>
+          <td align="left">Approximation theory<br />
+						<details>
+						  <summary><b style="color:#38b000"> + details</b></summary>
+						  <i>How well can you approximate a given function by a DNN?
+								We will explore various facets of this issue, from universal
+								approximation to Barron's theorem. And does increasing the
+								depth provably help for expressivity?</i>
+						</details>
+					</td>
+          <td>Omar Khattab</td>
+          <td align="left">
+						<!-- <a href="https://www.dropbox.com/scl/fi/tsn6tkjlk7auc7ybgnyh2/3_approximation_2024.pdf?rlkey=qz55hbiofu1lzm7fs1u9xj30l&dl=0">slides</a><br/>
+						<br/>
+						optional reading:</br>
+							<a href="https://mjt.cs.illinois.edu/dlt/index.pdf">Deep learning theory notes</a> sections 2 and 5 (this is written at a rather advanced level; try to get the intuitions rather than all the details) -->
+					</td>
+          </td>
+          <td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Fri 9/12</td>
+          <td align="left"> PyTorch Tutorial: 11 AM -12 PM, 32-123
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 3</td>
+        </tr>
+        <tr>
+          <td sdnum="1033;0;@" align="left">Tue 9/16</td>
+          <td align="left">Architectures: Grids<br />
+						<details>
+						  <summary><b style="color:#38b000"> + details</b></summary>
+						  <i>This lecture will focus mostly on convolutional neural networks,
+							presenting them as a good choice when your data lies on a grid.</i>
+						</details>
+
+					</td>
+          <td>Sara Beery</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/g9hozgna3ralnpibg30oz/4_grid_archs_2025.pdf?rlkey=d0wbf24wck84rayhbj1q0d01m&st=vnt61skl&dl=0">slides</a>
+						<br/>
+						<br>
+						required reading:<br>
+							<a href="https://visionbook.mit.edu/convolutional_neural_nets.html">CNNs</a>
+		  	  </td>
+          <td>
+
+					</td>
+        </tr>
+        <tr>
+          <td sdnum="1033;0;@" align="left">Thu 9/18</td>
+          <td align="left">Architectures: Memory and Sequence Modeling<br />
+			<details>
+				<summary><b style="color:#38b000"> + details</b></summary>
+				<i>
+					RNNs, LSTMs, memory, sequence models.
+				</i>
+			</details>
+						<!-- <details>
+						  <summary><b style="color:#38b000"> + details</b></summary>
+						  <i>This lecture covers graph neural networks (GNNs), showing connections to
+								MLPs and CNNs and message passing algorithms. We will also discuss
+								theoretical limitations on the expressive power of GNNs, and the
+								practical implications of this."</i>
+						</details> -->
+					</td>
+          <td>Kaiming He</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/lu2osug2lswj8gqyyuxut/5_mem_seq_2025.pdf?rlkey=z0o79n6suzrhanv9wzqo89bbs&st=3tpzzlec&dl=0">slides</a>
+					</td>
+          <td>
+
+					</td>
+        </tr>
+
+
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 4</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 9/23</td>
+          <td align="left">Architectures: Transformers<br>
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Transformers. Three key ideas: tokens, attention, positional codes. Relationship between transformers and MLPs, GNNs, and CNNs -- they are all variations on the same themes!
+							</i>
+						</details>
+					 </td>
+          <td>Sara Beery</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/yorf3fw3ovrptaaoyh441/6_transformers_2025.pdf?rlkey=zkjpma8flvy5ksjc333hxp9q8&st=v403dfgl&dl=0">slides</a><br/>
+						<br>
+	    			reading:<br>
+							<a href="https://visionbook.mit.edu/transformers.html">Transformers</a>  (note that this reading focuses on examples from vision but you can apply the same architecture to any kind of data) <br/>
+					</td>
+					<td>
+						pset 1 due
+						<br>
+						pset 2 out (<a href="https://canvas.mit.edu/courses/33933/files/5724556?module_item_id=1435134">solutions</a>)
+					</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Thu 9/25</td>
+          <td align="left">Generalization Theory<br />
+						<!-- <details>
+						  <summary><b style="color:#38b000"> + details</b></summary>
+						  <i>Spectral perspective on neural computation.
+						  Feature learning and hyperparameter transfer.
+						  Scaling rules for hyperparameter transfer across width and depth.</i>
+						</details> -->
+					</td>
+          <td>Omar Khattab</td>
+          <td>
+						<!-- <a href="https://www.dropbox.com/s/4mverw6nhm6k9mp/6.7960%20__%20optimization.pdf?dl=0">slides</a>
+						<br><br>
+						required reading:<br>
+							<a href="https://kenndanielso.github.io/mlrefined/blog_posts/13_Multilayer_perceptrons/13_7_General_steepest_descent.html">Steepest descent</a> -->
+					</td>
+          <td>
+
+					</td>
+        </tr>
+
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 5 </td>
+        </tr>
+        <!--
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 10/1</td>
+          <td align="left"> Guest Lecture: Tess Smidt <br />
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>Symmetry can occur in many forms. For physical systems in 3D, we have the freedom to choose any coordinate system and therefore any physical property must transform predictably under elements of Euclidean symmetry (3D rotations, translations and inversion). For algorithms involving the nodes and edges of graphs, we have symmetry under permutation of how the nodes and edges are ordered in computer memory.  Unless coded otherwise, machine learned models make no assumptions about the symmetry of a problem and will be sensitive to e.g. an arbitrary choice of coordinate system or ordering of nodes and edges in an array. One of the primary motivations of explicitly treating symmetry in machine learning models is to eliminate the need for data augmentation. Another motivation is that by encoding symmetry into a method, we get the guarantee that the model will give the "same" answer for an example and a "symmetrically equivalent" example even if the model was not explicitly trained on the "symmetrically equivalent" example. In this lecture, we will discuss several ways to make machine learning models "symmetry-aware" (e.g. input representation vs. loss vs. and model architecture).  We will focus on how to handle 3D Euclidean symmetry and permutation symmetry in neural networks, describe unintuitive and beneficial consequences of these symmetries, and discuss how to set up training tasks that are compatible with your assumptions of symmetry.</i>
+						</details>
+					</td>
+          <td>Tess Smidt</td>
+          <td><a href="https://docs.google.com/presentation/d/1xufLhj2o7mJeG-ZkwSUZko94Q8YPIBmLSXsnS-qlKv0/edit?usp=sharing">slides</a>
+		  		</td>
+          <td>
+
+					</td>
+        </tr>
+			-->
+				<tr>
+					<td sdnum="1033;0;@" align="left">Tue 9/30</td>
+					<td align="left"> Representation Learning: Reconstruction-based
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Intro to representation learning, unsupervised and self-supervised learning, clustering, dimension reduction, autoencoders, and modern self-supevised learning with reconstruction losses.
+						</details>
+					</td>
+					<td>Kaiming He</td>
+					<td>
+						<a href="https://www.dropbox.com/scl/fi/8p20mfl0w66df5pjf3z9c/8_representation_rec_2025.pdf?rlkey=8okp1xd19bq9ox59kpx93a94o&st=9butpzi3&dl=0">slides</a><br>
+						<!-- <br/>
+						required reading:<br>
+							<a href="https://canvas.mit.edu/courses/28227/files/4639776?module_item_id=1189139">Transformers</a> (note that this reading focuses on examples from vision but you can apply the same architecture to any kind of data) -->
+					</td>
+					<td>
+
+					</td>
+				</tr>
+        <tr>
+          <td sdnum="1033;0;@" align="left">Thu 10/2</td>
+          <td align="left"> Representation learning -- similarity-based<br />
+				<details>
+					<summary><b style="color:#38b000"> + details</b></summary>
+					<i>
+						Metric learning, contrastive learning, self-supervised and supervised variants, InfoNCE, alignment and uniformity, hard negatives.
+					</i>
+				</details>
+				<!-- <details>
+					<summary><b style="color:#38b000"> + details</b></summary>
+					<i>
+							Practical tips mixed with opinionated anecdotes about how to get deep nets to actually do what you want.
+					</i>
+				</details> -->
+
+			</td>
+          <td>Omar Khattab</td>
+          <td>
+						<!-- <a href="https://www.dropbox.com/s/j0gym3lk9eulra2/8_hackers_guide.pdf?dl=0">slides</a><br>
+						<br/>
+	    			optional readings:<br>
+							<a href="https://karpathy.github.io/2019/04/25/recipe/">Recipe's for training NNs</a><br/>
+							<a href="https://martin.zinkevich.org/rules_of_ml/rules_of_ml.pdf">Rules of ML</a> -->
+					</td>
+					<td>
+					</td>
+        </tr>
+
+
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 6</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 10/7</td>
+					<td align="left"> Representation Learning and Information Theory
+
+						<!-- <details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								A look at the inductive biases of architecture. Gaussian processes and the Neural Network--Gaussian Process correspondence
+							</i>
+						</details> -->
+
+					</td>
+          <td>Kaiming He</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/mrlthxaaa5kg36ro6ripp/10_representation_info_2025.pdf?rlkey=v1wo7nw0hbbf14it77y95dtei&st=td6wzebh&dl=0">slides</a>
+						<!-- <br><br>
+						required reading:<br>
+							<a href="https://canvas.mit.edu/courses/28227/files/4676909?module_item_id=1193583">RNNs</a>
+						<br><br>
+						optional reading:<br>
+							<a href="https://www.cs.cmu.edu/~bhiksha/courses/deeplearning/Spring.2019/archive-f19/www-bak11-22-2019/document/lecture/lec13.recurrent2.pdf">RNN Stability analysis and LSTMs</a> -->
+					</td>
+          <td>
+						pset 2 due<br>
+						pset 3 out
+					</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Thu 10/9</td>
+          <td align="left"> Foundation models: pre-training and scaling laws
+						
+					</td>
+          <td>Omar Khattab</td>
+          <td>
+						<!-- <a href="https://www.dropbox.com/scl/fi/cradvuxiabg8dpuxg1gsk/12-rep_learning_1.pdf?rlkey=tnyrfvgkrqxdou5k0balu85lx&dl=0">slides</a>
+						<br/>
+						<br>
+				    required reading:<br>
+							<a href="https://canvas.mit.edu/courses/28227/files/4684778?module_item_id=1194702">Representation learning</a><br/>
+						<br>
+				    optional reading:<br>
+							<a href="https://arxiv.org/abs/1206.5538">Representation learning: A review</a> -->
+					</td>
+          <td>
+
+					</td>
+        </tr>
+
+
+
+				<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 7</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 10/14</td>
+          <td align="left"> Foundation models: post-training and RL
+					</td>
+          <td>Omar Khattab</td>
+          <td>
+						<!-- <a href="https://www.dropbox.com/scl/fi/rd5l57yo44n15c8frwks5/13_similarity_2024.pdf?rlkey=iuw1svqf11rgqgvgovzeukphj&dl=0">slides</a>
+						<br/><br>
+						required reading: (same as previous lecture)
+						<br/><br>
+						optional readings:<br>
+							<a href="https://arxiv.org/abs/2005.10242">Alignment and uniformity</a> <br/>
+							<a href="https://lilianweng.github.io/posts/2021-05-31-contrastive">Contrastive learning blog, covering lots of recent methods</a> <br/> -->
+					</td>
+          <td>
+
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Thu 10/16</td>
+          <td align="left"> Generative models: basics
+						<!-- <details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Density and energy models, samplers, GANs, autoregressive models, diffusion models
+							</i>
+						</details> -->
+					</td>
+          <td>Kaiming He</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/7jswvwe1c8rtherjaboh9/lec13_gen_intro.pdf?rlkey=vqx2mjujz2hc93eny55a761ij&st=mnagglkh&dl=0">slides</a>
+						<!-- <br>
+						<br>
+				    optional readings:<br>
+							<a href="https://papers.nips.cc/paper_files/paper/2009/hash/5751ec3e9a4feab575962e78e006250d-Abstract.html">Kernel methods for DL</a><br/>
+							<a href="https://arxiv.org/abs/1711.00165">DNN as Gaussian Processes</a> -->
+					</td>
+          <td>
+						pset 3 due<br>
+						pset 4 out<br>
+				<!--href="https://www.dropbox.com/scl/fi/bet8enscln8ue36kd8t17/final_project_guidelines.pdf?rlkey=knd19cnumk51ho1y9crno56ib&dl=0"-->
+					</td>
+        </tr>
+
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 8</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Thu 10/21 </td>
+          <td align="left"> Midterm: 7:30 - 9:30 PM
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+        
+		<tr>
+			<td sdnum="1033;0;@" align="left">Thu 10/23</td>
+			<td align="left">
+				Generative models: VAE and GAN
+				<!-- <details>
+					<summary><b style="color:#38b000"> + details</b></summary>
+					<i>
+						VAEs, latent variables
+					</i>
+				</details> -->
+			</td>
+			<td>Kaiming He</td>
+			<td>
+				<a href="https://www.dropbox.com/scl/fi/3c4mwxeweqnb84bmftgt3/lec14_vae_gan.pdf?rlkey=dw2kkoc05wf449bydqic663j8&st=le610sta&dl=0">slides</a>
+				<!-- <br><br>
+				required reading:<br>
+					<a href="https://canvas.mit.edu/courses/28227/files/4733591?module_item_id=1203441">Generative Models</a> -->
+			</td>
+			<td>
+
+			</td>
+		</tr>
+
+
+
+
+				<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 9</td>
+        </tr>
+        <tr>
+          <td sdnum="1033;0;@" align="left">Tue 10/28</td>
+          <td align="left"> Hacker's guide to DL
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+									Practical tips mixed with opinionated anecdotes about how to get deep nets to actually do what you want.
+							</i>
+						</details>
+					</td>
+          <td>Omar Khattab</td>
+					<td>
+						<!-- <a href="https://www.dropbox.com/scl/fi/jy9u21sqa4zjpkhzyygue/15_gen_models_2.pdf?rlkey=4c7i4evuoxeaskaqu8zzc0qo6&dl=0">slides</a><br/>
+						<br/>
+				    required reading:<br>
+							<a href="https://canvas.mit.edu/courses/28227/files/4747000?module_item_id=1205633">Generative modeling meets representation learning</a><br/>
+						<br>
+						optional reading:<br>
+							<a href="https://arxiv.org/abs/1312.6114">VAE paper</a> -->
+						</td>
+					</td>
+          <td>
+					</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Thu 10/30</td>
+          <td align="left"> Generative models: Diffusion and Flows
+					</td>
+          <td>Kaiming He</td>
+          <td>
+					  <a href="https://www.dropbox.com/scl/fi/aoaddpf7wjcv28xtbwe12/lec16_diffusion.pdf?rlkey=k9op9towe7u2d4k9q4n2wu1xz&st=g8zsdbui&dl=0">slides</a>
+						<!-- <br><br>
+						optional reading:<br>
+							<a href="https://canvas.mit.edu/courses/28227/files/4757244?module_item_id=1206967">Conditional generative models</a> -->
+					</td>
+          <td>
+					</td>
+        </tr>
+
+        <tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 10</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 11/4</td>
+          <td align="left">Generalization (OOD)
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Exploring model generalization out of distribution, with a focus on adversarial robustness and distribution shift
+							</i>
+						</details>
+					</td>
+          <td>Sara Beery</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/pk81c0p4mk68lli60sikl/17_ood_2025.pdf?rlkey=4ddc1nkqwpuc74130pi2wuvpy&st=7ko1cc6p&dl=0">slides</a>
+						<!-- <br><br>
+				    required reading:<br>
+							<a href="https://gradientscience.org/intro_adversarial/">Adversarial examples</a><br/>
+				    	<a href="https://gradientscience.org/robust_opt_pt1/">Training robust classifiers</a><br/>
+						<br>
+				    optional readings:<br>
+							<a href="https://arxiv.org/abs/2012.07421">WILDS: A Benchmark of in-the-Wild Distribution Shifts</a><br/>
+							<a href="https://arxiv.org/abs/2004.07780">Shortcuts in NN</a><br/>
+				    	<a href="https://arxiv.org/pdf/2005.11295.pdf">From ImageNet to Image Classification</a><br/>
+					    <a href="https://arxiv.org/pdf/2006.09994.pdf">Noise or Signal</a><br/>
+				    	<a href="https://arxiv.org/abs/2009.11848">Extrapolation</a><br/> -->
+					</td>
+          <td>
+						pset 4 due<br>
+						pset 5 out
+					</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Thu 11/6</td>
+          <td align="left">Transfer learning: Models and Data
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Finetuning, linear probes, knowledge distillation, generative models as data, domain adaptation, prompting
+							</i>
+						</details>
+					</td>
+          <td>Sara Beery</td>
+          <td>
+							<a href="https://www.dropbox.com/scl/fi/jfa2ampn4zj98txbn29r9/18_transfer_learning_2025.pdf?rlkey=chv4b0ujjpj8512emteus9kdl&st=p74qi6jn&dl=0">slides</a>
+							<!-- <br><br>
+	    				required reading:<br>
+								<a href="https://canvas.mit.edu/courses/28227/files/4779070?module_item_id=1209684">Transfer learning and adaptation</a>
+							<br><br>
+							optional readings:<br>
+								<a href="https://arxiv.org/abs/2010.03978">A Brief Review of Domain Adaptation</a><br>
+								<a href="https://arxiv.org/abs/2403.12029">Align and Distill: Unifying and Improving Domain Adaptive Object Detection</a> -->
+					</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 11</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Tue 11/11</td>
+          <td align="left"> No class: Veterans Day
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Thu 11/13</td>
+          <td align="left"> Guest Lecture 1
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>pset 5 due
+					</td>
+        </tr>
+
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 12</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Tue 11/18</td>
+          <td align="left"> Guest Lecture 2
+					</td>
+          <td></td>
+          <td>
+					</td>
+          <td>
+					</td>
+        </tr>
+
+        <tr>
+          <td sdnum="1033;0;@" align="left">Thu 11/20</td>
+          <td align="left"> Evaluation
+						<details>
+							<summary><b style="color:#38b000"> + details</b></summary>
+							<i>
+								Designing benchmarks, selecting metrics, and using human input at inference
+							</i>
+						</details>
+					</td>
+          <td>Sara Beery</td>
+          <td>
+						<a href="https://www.dropbox.com/scl/fi/dpy9knkmnmywl1yfny7t5/20_evaluation_2025.pdf?rlkey=rf5i4djze7xex2agvlyxl6n4y&st=ueikmcjc&dl=0">slides</a>
+						<!-- <br><br>
+	    			required reading: (same as previous lecture) -->
+					</td>
+          <td>
+					</td>
+        </tr>
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 13</td>
+        </tr>
+				<tr>
+          <td sdnum="1033;0;@" align="left">Tue 11/25</td>
+          <td align="left">Applying Deep Learning to Your Problems
+					</td>
+          <td>Kaiming He</td>
+          <td>
+				<a href="https://www.dropbox.com/scl/fi/e4ugwzvndfptz250widrq/lec21_hackers.pdf?rlkey=3zwjnpq3ej3bi8wlb11yxyp2i&st=lbwjf81k&dl=0">slides</a>
+				</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Thu 11/27</td>
+          <td align="left">No class: Thanksgiving Day
+					</td>
+          <td></td>
+          <td>
+				</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 14</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Tue 12/2</td>
+          <td align="left">Inference methods for deep learning and systems
+				<details>
+					<summary><b style="color:#38b000"> + details</b></summary>
+					<i>
+						Everything beyond a simple forward pass: beam search, chain-of-thought, in-context learning, test-time training. Also methods that use search to improve learning.
+					</i>
+				</details>
+					</td>
+          <td></td>
+          <td>Omar Khattab
+				</td>
+          <td>
+					</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Thu 12/4</td>
+          <td align="left">Project office hours
+					</td>
+          <td></td>
+          <td>
+				</td>
+          <td>
+					</td>
+        </tr>
+		
+		<tr>
+          <td colspan="6" class="schedule_week" align="center" height="28" valign="middle">
+            Week 15</td>
+        </tr>
+
+		<tr>
+          <td sdnum="1033;0;@" align="left">Tue 12/9</td>
+          <td align="left">Final project deadline
+					</td>
+          <td></td>
+          <td>
+				</td>
+          <td>
+					</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+		<hr/>
+		<br>
+		<h2 id=collaboration_policy>Collaboration policy</h2>
+		<p>
+			<ul>
+				<li>Psets should be written up individually and should reflect your own individual work. However, you may discuss with your peers, TAs, and instructors.</li>
+				<li>You should not copy or share complete solutions or ask others if your answer is correct (in person or via piazza/canvas).</li>
+				<li>If you work with anyone on the pset (other than TAs and instructors), list their names at the top of the pset.</li>
+			</ul>
+		</p>
+
+		<hr/>
+		<br>
+		<h2 id=AI_policy>AI assistants policy</h2>
+		<p>
+			<ul>
+				<li>Our policy for using ChatGPT and other AI assistants is <i>identical</i> to our policy for using human assistants.</li>
+				<li>This is a deep learning class and you <i>should</i>
+					try out all the latest AI assistants (they are pretty much all using deep learning). It's very important to play with them to learn what they can do and what
+					they can't do. That's a part of the content of this course.</li>
+				<li>Just like you can come to office hours and ask a human questions (about the lecture material, clarifications about pset questions, tips for getting started, etc),
+					you are very welcome to do the same with AI assistants.</li>
+				<li>But: just like you are not allowed to ask an expert friend to do your homework for you, you also should not ask an expert AI.
+				<li>If it is ever unclear, just imagine the AI as a human and apply the same norm as you would with a human.</li>
+				<li>If you work with any AI on a pset, briefly describe which AI and how you used it at the top of the pset (a few sentences is enough).</li>
+			</ul>
+		</p>
+
+		<hr/>
+		<br>
+		<h2 id=attendance_policy>Attendance policy</h2>
+		<p>
+			<li>Attendance is at your discretion. Recordings will be released <a href="https://canvas.mit.edu/courses/33933/external_tools/594">here</a> right after each class.</li>
+		</p>
+
+		<hr/>
+		<br>
+		<h2 id=late_policy>Late policy</h2>
+		<p>
+			<ul>
+			<li> Homeworks will not be accepted more than 7 days after the deadline.</li>
+				<li> The grade on a homework received n days after the deadline (n<=7) will be multiplied by (1-n/14). We will round up to units of full days; submitting 1 hour late counts as using 1 late day.</li>
+				<li> Ten penalty days will be automatically waived for each student.</li>
+					<br>
+					For example, let's say a student perfectly solves the first three homeworks but submits the first homework 8 days late,
+					the second homework six days late and the third homework five days late. Then the student will score zero on the first homework,
+					100&percnt; on the second homework (using up six late days) and 100&percnt; * (1-1/14) = 92.9&percnt; on the third homework
+					(using up the last four remaining late days).<br>
+					<br>
+					The slack days are meant to be used for all the normal circumstances of life: being behind on work, forgetting the deadline,
+					having a conference to attend, etc. We will not grant further extensions for these routine issues. For any extension request (i.e. serious medical issues or life events) please contact
+					<a href="https://studentlife.mit.edu/s3">S3</a> (for undergrads) or
+					<a href="https://oge.mit.edu/student-support-development/gradsupport/">GradSupport</a> (for grad students) and we will work with them to
+					find a good solution.</li>
+				<li>We will not be able to support course incompletes.</li>
+		</p>
+
+		<hr/>
+		<br>
+		<h2 id=previous_years>Previous years</h2>
+		<a href="https://phillipi.github.io/6.7960/">Fall 2024</a><br>
+		<a href="https://phillipi.github.io/6.s898/index.html">Fall 2023</a><br>
+		<a href="https://phillipi.github.io/6.s898/2022/index.html">Fall 2022</a><br>
+		<a href="https://phillipi.github.io/6.s898/2021/index.html">Fall 2021</a>
+
+<p>&nbsp;</p><hr />
+</div>
+</body>
+
+</html>
