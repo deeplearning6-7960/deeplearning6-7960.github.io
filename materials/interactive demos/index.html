@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview — 6.7960</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 2rem 100px;
+    }
+    header { margin-bottom: 48px; }
+    .course { font-size: 12px; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { font-size: 22px; font-weight: 400; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 13px; max-width: 540px; }
+
+    .demo-list { list-style: none; }
+    .demo-list li { border-top: 1px solid #f0f0f0; }
+    .demo-list li:last-child { border-bottom: 1px solid #f0f0f0; }
+    .demo-list a {
+      display: block;
+      padding: 16px 0;
+      text-decoration: none;
+      color: inherit;
+    }
+    .demo-list a:hover .demo-title { text-decoration: underline; }
+    .demo-title { font-size: 14px; color: #1a1a1a; margin-bottom: 3px; }
+    .demo-desc  { font-size: 12px; color: #999; }
+  
+    .credit {font-size:10px;color:#777;margin-bottom:14px}
+    .course {color:#777}.subtitle,.leg,.toggle,.val,.info,.demo-desc,.panel-label {color:#666}
+    .site-nav {display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #eee;padding:0 0 14px;margin:0 0 28px;font-size:11px}
+    .site-nav a,.pager a {color:#777;text-decoration:none}.site-nav a:hover,.pager a:hover {color:#111;text-decoration:underline}
+    .site-nav [aria-current] {color:#111;font-weight:600}
+    .pager {display:flex;justify-content:space-between;gap:24px;border-top:1px solid #eee;margin-top:32px;padding-top:18px;font-size:12px}
+    details {margin-top:18px;color:#666;font-size:12px}summary {cursor:pointer}details p {margin:12px 0;max-width:690px}
+    :focus-visible {outline:2px solid #508cdc;outline-offset:4px}
+    .btn-row,.toggle-row,.info {flex-wrap:wrap}.canvases {display:grid;grid-template-columns:minmax(0,1fr) 180px}
+    .canvases canvas {width:100%;min-width:0;height:auto} .ctrl-row {max-width:100%}
+    @media(max-width:600px){.page{padding:28px 20px 48px}.site-nav{gap:10px 16px}.canvases{grid-template-columns:1fr}.canvases #loss-canvas{width:100%;height:150px}.panels{flex-direction:column}.ctrl-row input[type=range]{width:110px;min-width:0}.controls{gap:16px}.info{gap:10px 20px}.btn-row{gap:8px}.subtitle{margin-bottom:22px}}
+
+/* Consistent spacing and responsive experiment layout. */
+.page{max-width:1040px;padding:40px 32px 56px}
+body{line-height:1.55}
+.site-nav{gap:8px 20px;margin-bottom:24px;padding-bottom:16px;align-items:center}
+.site-nav a{padding:6px 0;display:inline-block}
+.credit{margin-bottom:10px}h1{font-size:22px}.subtitle{margin-bottom:24px;max-width:720px}
+.controls,.top-row .ctrl-block{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px 24px;width:100%;margin:0 0 20px;align-items:start}
+.top-row{display:block;margin:0;gap:0}
+.ctrl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;min-width:0;align-items:center}
+.ctrl-row label{grid-column:1/-1;min-width:0;font-size:12px;color:#555}
+.ctrl-row input[type=range]{width:100%;min-width:0;min-height:32px;margin:0;accent-color:#555}
+.ctrl-row select{grid-column:1/-1;width:100%;min-width:0;max-width:100%;min-height:36px;padding:6px 9px;font-size:12px}
+.val{min-width:38px;text-align:right;font-size:12px}.arch-badge{margin:0 0 16px}
+.training-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin:0 0 20px}
+.training-toolbar .btn-row{margin:0}.training-toolbar .info{margin:0;gap:6px 18px;font-size:11px;flex-wrap:wrap}
+button{min-height:36px;padding:7px 16px;line-height:1.3}button:disabled{opacity:.55;cursor:default}
+.btn-row{flex-wrap:wrap;gap:8px}.legend,.toggle-row{gap:8px 20px;margin:0 0 12px;align-items:center;flex-wrap:wrap}
+.toggle{min-height:32px}.leg{font-size:11px}.swatch{flex-shrink:0}
+.canvases{grid-template-columns:minmax(0,1fr) 200px;gap:20px;align-items:start;margin-bottom:0}
+.panels{gap:20px;margin-bottom:20px}.panel-label{text-align:left;margin-bottom:10px;font-size:10px}
+.canvases canvas,.panel canvas,#loss-canvas,#sweep-canvas{height:auto;min-width:0;border-color:#eaeaea}
+.plots{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}.plots figure{min-width:0}
+.plot{max-width:100%}.caption{margin-top:10px;line-height:1.5}.stats{margin-top:20px;gap:10px 24px}
+.modes{margin-bottom:20px;flex-wrap:wrap}.modes button{flex:0 1 auto}
+details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}details p{margin:10px 0 0}details .sweep-note{font-size:12px;color:#666;margin:10px 0 0}
+.comparison{margin-top:28px;padding-top:24px;border-top:1px solid #eee}
+.section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-bottom:16px}
+.section-head h2{font-size:14px;font-weight:500;margin:0}.section-head p{font-size:11px;color:#777;margin-top:3px}
+.section-head .btn-row{margin:0}.comparison details{margin:14px 0 0}#sweep-status{color:#666;font-size:11px}#sweep-canvas{margin:0}
+.pager{margin-top:32px;padding-top:16px;align-items:start}.pager a{padding:6px 0;max-width:48%}.pager a:last-child{text-align:right}
+.demo-list a{padding:20px 0}.demo-desc{max-width:650px}
+@media(min-width:1200px){.page{padding-top:48px}}
+@media(max-width:760px){.page{padding:28px 24px 40px}.canvases{grid-template-columns:minmax(0,1fr)}.canvases #loss-canvas{width:100%;height:auto}.panels{flex-direction:column}.plots{grid-template-columns:minmax(0,1fr)}.controls,.top-row .ctrl-block{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}.training-toolbar{align-items:flex-start}.training-toolbar .info{width:100%}.site-nav{gap:4px 16px}.panel-label{font-size:11px}}
+@media(max-width:420px){.page{padding:22px 16px 32px}.controls,.top-row .ctrl-block{gap:14px 16px}.ctrl-row select{font-size:11px}.ctrl-row label{font-size:11px}.val{font-size:11px;min-width:30px}.legend,.toggle-row{gap:6px 14px}.site-nav{font-size:10px;gap:2px 14px}.subtitle{font-size:12px}.section-head{gap:12px}.section-head .btn-row{width:100%}.pager{font-size:11px;gap:16px}}
+@media(pointer:coarse){button,.ctrl-row select{min-height:44px}.toggle,summary,.site-nav a,.pager a{min-height:44px;display:inline-flex;align-items:center}.ctrl-row input[type=range]{min-height:40px}}
+
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<div class="page">
+  <div class="credit">(made with Claude Code and ChatGPT)</div>
+<nav class="site-nav" aria-label="Lesson sequence"><a href="index.html" aria-current="page">Overview</a><a href="relu-approx.html">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
+  <header>
+    <div class="course">MIT 6.7960 — Approximation Theory</div>
+    <h1>Overview</h1>
+    <p class="subtitle">From one ReLU to learned functions, network shape, and richer inputs.</p>
+  </header>
+
+  <ul class="demo-list" id="demo-list">
+<li><a href="relu-approx.html">
+      <div class="demo-title">01 — Approximation</div>
+      <div class="demo-desc">Fit a 1D target with a two-layer ReLU MLP. Slide H to see how more hidden units improve the piecewise-linear approximation.</div>
+    </a></li>
+<li><a href="bias.html"><div class="demo-title">02 — Effect of ReLU on Kinks</div><div class="demo-desc">Shift different functions with bias and see how ReLU creates or removes kinks, including on the Telgarsky sawtooth.</div></a></li>
+<li><a href="width-depth.html">
+      <div class="demo-title">03 — Width vs Depth</div>
+      <div class="demo-desc">Fix the total neuron budget N, then vary the aspect ratio (width/depth). Compare wide-shallow vs narrow-deep networks on the same task.</div>
+    </a></li>
+<li><a href="posenc.html">
+      <div class="demo-title">04 — Sinusoidal Positional Encoding</div>
+      <div class="demo-desc">Side-by-side: plain MLP vs pos-enc MLP fitting a noisy scatter plot. Drag H and L to see how encoding unlocks high-frequency fitting.</div>
+    </a></li>
+</ul>
+</div>
+</body>
+</html>
