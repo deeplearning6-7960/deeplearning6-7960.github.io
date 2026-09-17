@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approximation — 6.7960</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 52px 2rem 80px;
+    }
+    .course { font-size: 11px; color: #bbb; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    h1 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+    .subtitle { color: #888; font-size: 12px; max-width: 640px; margin-bottom: 28px; }
+
+    .top-row {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .ctrl-block { display: flex; flex-direction: column; gap: 8px; }
+    .ctrl-row { display: flex; align-items: center; gap: 10px; }
+    .ctrl-row label { font-size: 12px; color: #666; min-width: 72px; }
+    .ctrl-row select {
+      font: inherit; font-size: 11px; color: #555;
+      border: 1px solid #ddd; border-radius: 3px;
+      padding: 3px 6px; background: #fff; cursor: pointer;
+    }
+    .ctrl-row input[type=range] { width: 140px; accent-color: #555; }
+    .val { font-size: 11px; color: #999; font-variant-numeric: tabular-nums; min-width: 40px; }
+
+    .btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    button {
+      background: #1a1a1a; color: #fff; border: none;
+      border-radius: 4px; padding: 5px 16px;
+      font-size: 12px; font-family: inherit; cursor: pointer;
+    }
+    button:hover { background: #333; }
+    .btn-ghost {
+      background: #fff; color: #555; border: 1px solid #ccc;
+    }
+    .btn-ghost:hover { background: #f5f5f5; }
+
+    .toggle-row { display: flex; gap: 18px; margin-bottom: 12px; }
+    .toggle { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; cursor: pointer; user-select: none; }
+    .toggle input { accent-color: #555; }
+
+    .legend { display: flex; gap: 20px; margin-bottom: 10px; flex-wrap: wrap; }
+    .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+    .swatch { width: 24px; height: 2.5px; flex-shrink: 0; }
+
+    .canvases { display: flex; gap: 16px; align-items: flex-start; }
+    #main-canvas { border: 1px solid #f0f0f0; border-radius: 3px; flex: 1; display: block; }
+    #loss-canvas { border: 1px solid #f0f0f0; border-radius: 3px; display: block; flex-shrink: 0; }
+
+    .info {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #aaa;
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      gap: 24px;
+    }
+  
+    .credit {font-size:10px;color:#777;margin-bottom:14px}
+    .course {color:#777}.subtitle,.leg,.toggle,.val,.info,.demo-desc,.panel-label {color:#666}
+    .site-nav {display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #eee;padding:0 0 14px;margin:0 0 28px;font-size:11px}
+    .site-nav a,.pager a {color:#777;text-decoration:none}.site-nav a:hover,.pager a:hover {color:#111;text-decoration:underline}
+    .site-nav [aria-current] {color:#111;font-weight:600}
+    .pager {display:flex;justify-content:space-between;gap:24px;border-top:1px solid #eee;margin-top:32px;padding-top:18px;font-size:12px}
+    details {margin-top:18px;color:#666;font-size:12px}summary {cursor:pointer}details p {margin:12px 0;max-width:690px}
+    :focus-visible {outline:2px solid #508cdc;outline-offset:4px}
+    .btn-row,.toggle-row,.info {flex-wrap:wrap}.canvases {display:grid;grid-template-columns:minmax(0,1fr) 180px}
+    .canvases canvas {width:100%;min-width:0;height:auto} .ctrl-row {max-width:100%}
+    @media(max-width:600px){.page{padding:28px 20px 48px}.site-nav{gap:10px 16px}.canvases{grid-template-columns:1fr}.canvases #loss-canvas{width:100%;height:150px}.panels{flex-direction:column}.ctrl-row input[type=range]{width:110px;min-width:0}.controls{gap:16px}.info{gap:10px 20px}.btn-row{gap:8px}.subtitle{margin-bottom:22px}}
+
+/* Consistent spacing and responsive experiment layout. */
+.page{max-width:1040px;padding:40px 32px 56px}
+body{line-height:1.55}
+.site-nav{gap:8px 20px;margin-bottom:24px;padding-bottom:16px;align-items:center}
+.site-nav a{padding:6px 0;display:inline-block}
+.credit{margin-bottom:10px}h1{font-size:22px}.subtitle{margin-bottom:24px;max-width:720px}
+.controls,.top-row .ctrl-block{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px 24px;width:100%;margin:0 0 20px;align-items:start}
+.top-row{display:block;margin:0;gap:0}
+.ctrl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;min-width:0;align-items:center}
+.ctrl-row label{grid-column:1/-1;min-width:0;font-size:12px;color:#555}
+.ctrl-row input[type=range]{width:100%;min-width:0;min-height:32px;margin:0;accent-color:#555}
+.ctrl-row select{grid-column:1/-1;width:100%;min-width:0;max-width:100%;min-height:36px;padding:6px 9px;font-size:12px}
+.val{min-width:38px;text-align:right;font-size:12px}.arch-badge{margin:0 0 16px}
+.training-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin:0 0 20px}
+.training-toolbar .btn-row{margin:0}.training-toolbar .info{margin:0;gap:6px 18px;font-size:11px;flex-wrap:wrap}
+button{min-height:36px;padding:7px 16px;line-height:1.3}button:disabled{opacity:.55;cursor:default}
+.btn-row{flex-wrap:wrap;gap:8px}.legend,.toggle-row{gap:8px 20px;margin:0 0 12px;align-items:center;flex-wrap:wrap}
+.toggle{min-height:32px}.leg{font-size:11px}.swatch{flex-shrink:0}
+.canvases{grid-template-columns:minmax(0,1fr) 200px;gap:20px;align-items:start;margin-bottom:0}
+.panels{gap:20px;margin-bottom:20px}.panel-label{text-align:left;margin-bottom:10px;font-size:10px}
+.canvases canvas,.panel canvas,#loss-canvas,#sweep-canvas{height:auto;min-width:0;border-color:#eaeaea}
+.plots{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}.plots figure{min-width:0}
+.plot{max-width:100%}.caption{margin-top:10px;line-height:1.5}.stats{margin-top:20px;gap:10px 24px}
+.modes{margin-bottom:20px;flex-wrap:wrap}.modes button{flex:0 1 auto}
+details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}details p{margin:10px 0 0}details .sweep-note{font-size:12px;color:#666;margin:10px 0 0}
+.comparison{margin-top:28px;padding-top:24px;border-top:1px solid #eee}
+.section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-bottom:16px}
+.section-head h2{font-size:14px;font-weight:500;margin:0}.section-head p{font-size:11px;color:#777;margin-top:3px}
+.section-head .btn-row{margin:0}.comparison details{margin:14px 0 0}#sweep-status{color:#666;font-size:11px}#sweep-canvas{margin:0}
+.pager{margin-top:32px;padding-top:16px;align-items:start}.pager a{padding:6px 0;max-width:48%}.pager a:last-child{text-align:right}
+.demo-list a{padding:20px 0}.demo-desc{max-width:650px}
+@media(min-width:1200px){.page{padding-top:48px}}
+@media(max-width:760px){.page{padding:28px 24px 40px}.canvases{grid-template-columns:minmax(0,1fr)}.canvases #loss-canvas{width:100%;height:auto}.panels{flex-direction:column}.plots{grid-template-columns:minmax(0,1fr)}.controls,.top-row .ctrl-block{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}.training-toolbar{align-items:flex-start}.training-toolbar .info{width:100%}.site-nav{gap:4px 16px}.panel-label{font-size:11px}}
+@media(max-width:420px){.page{padding:22px 16px 32px}.controls,.top-row .ctrl-block{gap:14px 16px}.ctrl-row select{font-size:11px}.ctrl-row label{font-size:11px}.val{font-size:11px;min-width:30px}.legend,.toggle-row{gap:6px 14px}.site-nav{font-size:10px;gap:2px 14px}.subtitle{font-size:12px}.section-head{gap:12px}.section-head .btn-row{width:100%}.pager{font-size:11px;gap:16px}}
+@media(pointer:coarse){button,.ctrl-row select{min-height:44px}.toggle,summary,.site-nav a,.pager a{min-height:44px;display:inline-flex;align-items:center}.ctrl-row input[type=range]{min-height:40px}}
+
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<div class="page">
+
+  <div class="credit">(made with Claude Code and ChatGPT)</div>
+<nav class="site-nav" aria-label="Lesson sequence"><a href="index.html">Overview</a><a href="relu-approx.html" aria-current="page">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
+  <div class="course">MIT 6.7960 — Approximation Theory</div>
+  <h1>Approximation</h1>
+  <p class="subtitle">
+    A two-layer ReLU MLP with H hidden units trained by SGD on random samples from f.
+    Watch the kinks move as both layers learn.
+  </p>
+
+  <div class="top-row">
+    <div class="ctrl-block">
+      <div class="ctrl-row">
+        <label for="sel-fn">Target</label>
+        <select id="sel-fn">
+          <option value="sine">sin(πx)</option>
+          <option value="abs">|x|</option>
+          <option value="step">step(x)</option>
+          <option value="quad">x²</option>
+          <option value="bump">smooth bump</option>
+          <option value="saw">sawtooth</option>
+          <option value="kink">|sin(πx)|</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <label for="sl-H">H</label>
+        <input type="range" id="sl-H" min="1" max="32" step="1" value="8">
+        <span class="val" id="val-H">8</span>
+      </div>
+      <div class="ctrl-row">
+        <label for="sl-lr">Learning rate</label>
+        <input type="range" id="sl-lr" min="-4" max="-1" step="0.1" value="-2">
+        <span class="val" id="val-lr">0.01</span>
+      </div>
+      <div class="ctrl-row">
+        <label for="sl-bs">Batch size</label>
+        <input type="range" id="sl-bs" min="1" max="128" step="1" value="32">
+        <span class="val" id="val-bs">32</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="training-toolbar"><div class="btn-row">
+    <button id="btn-train">Train</button>
+    <button id="btn-reset" class="btn-ghost">Reset</button>
+  </div><div class="info">
+    <span id="info-iter">iter 0</span>
+    <span id="info-mse">MSE —</span>
+    <span id="info-kinks">kinks —</span>
+  </div></div>
+
+  <div class="toggle-row">
+    <label class="toggle"><input type="checkbox" id="tog-basis"> show ReLU basis</label>
+    <label class="toggle"><input type="checkbox" id="tog-kinks" checked> show kinks</label>
+  </div>
+
+  <div class="legend">
+    <div class="leg"><div class="swatch" style="background:#bbb"></div>target f(x)</div>
+    <div class="leg"><div class="swatch" style="background:#1a1a1a"></div>MLP fit</div>
+    <div class="leg"><div class="swatch" style="background:rgba(80,140,220,0.5)"></div>v<sub>i</sub>·ReLU(w<sub>i</sub>x+b<sub>i</sub>)</div>
+    <div class="leg">
+      <svg width="16" height="10" style="flex-shrink:0">
+        <line x1="8" y1="0" x2="8" y2="10" stroke="#aaa" stroke-width="1" stroke-dasharray="2,2"/>
+      </svg>
+      kink position
+    </div>
+  </div>
+
+  <div class="canvases">
+    <canvas role="img" aria-label="Target and network approximation" id="main-canvas" width="640" height="380"></canvas>
+    <canvas role="img" aria-label="Training loss" id="loss-canvas" width="180" height="380"></canvas>
+  </div>
+
+  
+
+<footer class="pager"><a href="index.html">← Overview</a><a href="bias.html">02 Effect of ReLU on Kinks →</a></footer>
+</div>
+<script>
+'use strict';
+
+// ── Target functions ──────────────────────────────────────────────────────────
+
+const FNS = {
+  sine:  x => Math.sin(Math.PI * x),
+  abs:   x => Math.abs(x),
+  step:  x => (x >= 0 ? 1 : -1),
+  quad:  x => x * x,
+  bump:  x => Math.exp(-8 * x * x) - 0.3 * Math.exp(-8 * (x - 0.6) ** 2),
+  saw:   x => x - Math.floor(x + 0.5),
+  kink:  x => Math.abs(Math.sin(Math.PI * x)),
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let net, H, lr, batchSz, targetFn;
+let iter = 0, running = false, rafId = null;
+let lossHistory = [];
+let showBasis = false, showKinks = true;
+
+// ── Network: scalar input → H ReLUs → scalar output ──────────────────────────
+
+function makeNet(h) {
+  // He-style init for w1; spread b1 so kinks start across [-1,1]
+  return {
+    w1: Float64Array.from({length: h}, () => (Math.random() * 2 - 1)),
+    b1: Float64Array.from({length: h}, (_, i) => -1 + 2 * (i + 0.5) / h + (Math.random() - 0.5) * 0.2),
+    w2: Float64Array.from({length: h}, () => (Math.random() - 0.5) * 0.1),
+    b2: 0,
+  };
+}
+
+function forward(n, x) {
+  const h = new Float64Array(n.w1.length);
+  for (let i = 0; i < n.w1.length; i++) {
+    const pre = n.w1[i] * x + n.b1[i];
+    h[i] = pre > 0 ? pre : 0;
+  }
+  let y = n.b2;
+  for (let i = 0; i < n.w2.length; i++) y += n.w2[i] * h[i];
+  return { y, h };
+}
+
+function predict(n, x) { return forward(n, x).y; }
+
+function kinkPos(n, i) {
+  // hidden unit i activates at w1[i]*x + b1[i] = 0  →  x = -b1[i]/w1[i]
+  return Math.abs(n.w1[i]) > 1e-9 ? -n.b1[i] / n.w1[i] : NaN;
+}
+
+// ── SGD step ──────────────────────────────────────────────────────────────────
+
+function sgdStep(n, xs, ys) {
+  const H = n.w1.length, nb = xs.length;
+  const gw1 = new Float64Array(H), gb1 = new Float64Array(H);
+  const gw2 = new Float64Array(H);
+  let gb2 = 0, loss = 0;
+
+  for (let s = 0; s < nb; s++) {
+    const { y, h } = forward(n, xs[s]);
+    const err = y - ys[s];
+    loss += err * err;
+    const dout = 2 * err / nb;
+    gb2 += dout;
+    for (let i = 0; i < H; i++) {
+      gw2[i] += dout * h[i];
+      if (h[i] > 0) {
+        const dh = dout * n.w2[i];
+        gw1[i] += dh * xs[s];
+        gb1[i] += dh;
+      }
+    }
+  }
+
+  n.b2 -= lr * gb2;
+  for (let i = 0; i < H; i++) {
+    n.w1[i] -= lr * gw1[i];
+    n.b1[i] -= lr * gb1[i];
+    n.w2[i] -= lr * gw2[i];
+  }
+  return loss / nb;
+}
+
+// ── Training loop ─────────────────────────────────────────────────────────────
+
+function sampleBatch(n) {
+  const xs = [], ys = [];
+  for (let i = 0; i < n; i++) {
+    const x = Math.random() * 2 - 1;
+    xs.push(x); ys.push(targetFn(x));
+  }
+  return { xs, ys };
+}
+
+const STEPS_PER_FRAME = 20;
+
+function frame() {
+  for (let s = 0; s < STEPS_PER_FRAME; s++) {
+    const { xs, ys } = sampleBatch(batchSz);
+    const mse = sgdStep(net, xs, ys);
+    iter++;
+    if (iter % 10 === 0) lossHistory.push({ iter, mse });
+  }
+  draw();
+  if (running) rafId = requestAnimationFrame(frame);
+}
+
+function startTraining() {
+  if (running) return;
+  running = true;
+  document.getElementById('btn-train').textContent = 'Pause';
+  rafId = requestAnimationFrame(frame);
+}
+
+function pauseTraining() {
+  running = false;
+  document.getElementById('btn-train').textContent = 'Train';
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+function resetAll() {
+  pauseTraining();
+  iter = 0; lossHistory = [];
+  H = Number(document.getElementById('sl-H').value);
+  lr = Math.pow(10, Number(document.getElementById('sl-lr').value));
+  batchSz = Number(document.getElementById('sl-bs').value);
+  targetFn = FNS[document.getElementById('sel-fn').value];
+  net = makeNet(H);
+  draw();
+}
+
+// ── Drawing ───────────────────────────────────────────────────────────────────
+
+const mainCanvas = document.getElementById('main-canvas');
+const lossCanvas = document.getElementById('loss-canvas');
+const mCtx = mainCanvas.getContext('2d');
+const lCtx = lossCanvas.getContext('2d');
+
+const PAD = { t: 20, r: 20, b: 36, l: 48 };
+const NPLOT = 500;
+
+function drawMain() {
+  const W = mainCanvas.width, H_ = mainCanvas.height;
+  mCtx.clearRect(0, 0, W, H_);
+
+  const pw = W - PAD.l - PAD.r, ph = H_ - PAD.t - PAD.b;
+
+  const xs = Array.from({length: NPLOT}, (_, i) => -1 + 2 * i / (NPLOT - 1));
+  const yTruth = xs.map(targetFn);
+  const yFit   = xs.map(x => predict(net, x));
+
+  let ylo = Math.min(...yTruth, ...yFit) - 0.05;
+  let yhi = Math.max(...yTruth, ...yFit) + 0.05;
+  const span = yhi - ylo;
+  ylo -= span * 0.04; yhi += span * 0.04;
+
+  const scX = x  => PAD.l + (x + 1) / 2 * pw;
+  const scY = y  => PAD.t + ph - (y - ylo) / (yhi - ylo) * ph;
+
+  // Grid
+  mCtx.strokeStyle = '#f4f4f4'; mCtx.lineWidth = 1;
+  [ylo, 0, yhi].forEach(v => {
+    const y = scY(v);
+    if (y >= PAD.t && y <= PAD.t + ph) {
+      mCtx.beginPath(); mCtx.moveTo(PAD.l, y); mCtx.lineTo(PAD.l + pw, y); mCtx.stroke();
+    }
+  });
+  [-1, 0, 1].forEach(v => {
+    const x = scX(v);
+    mCtx.beginPath(); mCtx.moveTo(x, PAD.t); mCtx.lineTo(x, PAD.t + ph); mCtx.stroke();
+  });
+
+  // Kink positions as vertical dashed lines
+  if (showKinks) {
+    for (let i = 0; i < net.w1.length; i++) {
+      const kx = kinkPos(net, i);
+      if (isNaN(kx) || kx < -1 || kx > 1) continue;
+      const px = scX(kx);
+      mCtx.strokeStyle = 'rgba(160,160,160,0.5)'; mCtx.lineWidth = 1;
+      mCtx.setLineDash([3, 3]);
+      mCtx.beginPath(); mCtx.moveTo(px, PAD.t); mCtx.lineTo(px, PAD.t + ph); mCtx.stroke();
+      mCtx.setLineDash([]);
+      // dot on x-axis
+      mCtx.fillStyle = '#777';
+      mCtx.beginPath(); mCtx.arc(px, PAD.t + ph + 6, 2.5, 0, 2 * Math.PI); mCtx.fill();
+    }
+  }
+
+  // Individual ReLU contributions: v_i * ReLU(w_i*x + b_i)
+  if (showBasis) {
+    for (let i = 0; i < net.w1.length; i++) {
+      const hue = (i / Math.max(net.w1.length - 1, 1)) * 240;
+      mCtx.strokeStyle = `hsla(${hue},60%,55%,0.4)`;
+      mCtx.lineWidth = 1;
+      mCtx.beginPath();
+      xs.forEach((x, j) => {
+        const pre = net.w1[i] * x + net.b1[i];
+        const contrib = net.w2[i] * (pre > 0 ? pre : 0);
+        const py = scY(contrib);
+        j === 0 ? mCtx.moveTo(scX(x), py) : mCtx.lineTo(scX(x), py);
+      });
+      mCtx.stroke();
+    }
+  }
+
+  // Target
+  mCtx.strokeStyle = '#bbb'; mCtx.lineWidth = 2;
+  mCtx.beginPath();
+  xs.forEach((x, i) => {
+    const y = scY(yTruth[i]);
+    i === 0 ? mCtx.moveTo(scX(x), y) : mCtx.lineTo(scX(x), y);
+  });
+  mCtx.stroke();
+
+  // MLP fit
+  mCtx.strokeStyle = '#1a1a1a'; mCtx.lineWidth = 2;
+  mCtx.beginPath();
+  xs.forEach((x, i) => {
+    const y = scY(yFit[i]);
+    i === 0 ? mCtx.moveTo(scX(x), y) : mCtx.lineTo(scX(x), y);
+  });
+  mCtx.stroke();
+
+  // Axes labels
+  mCtx.fillStyle = '#777'; mCtx.font = '10px system-ui';
+  mCtx.textAlign = 'center';
+  [-1, 0, 1].forEach(v => mCtx.fillText(v, scX(v), PAD.t + ph + 16));
+  mCtx.textAlign = 'right';
+  [ylo, 0, yhi].forEach(v => {
+    const y = scY(v);
+    if (y >= PAD.t && y <= PAD.t + ph) mCtx.fillText(v.toFixed(1), PAD.l - 5, y + 3);
+  });
+
+  // Info line
+  const mse = yFit.reduce((s, y, i) => { const e = y - yTruth[i]; return s + e*e; }, 0) / NPLOT;
+  const kinks = Array.from({length: net.w1.length}, (_, i) => kinkPos(net, i))
+    .filter(k => !isNaN(k) && k >= -1 && k <= 1).length;
+  document.getElementById('info-iter').textContent = `iter ${iter}`;
+  document.getElementById('info-mse').textContent =
+    `MSE = ${mse < 1e-4 ? mse.toExponential(2) : mse.toFixed(5)}`;
+  document.getElementById('info-kinks').textContent =
+    `${kinks} / ${net.w1.length} kinks in [−1,1]`;
+}
+
+function drawLoss() {
+  const W = lossCanvas.width, H_ = lossCanvas.height;
+  lCtx.clearRect(0, 0, W, H_);
+  if (lossHistory.length < 2) { lCtx.fillStyle='#777'; lCtx.font='11px system-ui'; lCtx.textAlign='center'; lCtx.fillText('Training loss',W/2,24); lCtx.fillText('Press Train to begin',W/2,H_/2); return; }
+
+  const lpad = { t: 20, r: 12, b: 36, l: 12 };
+  const pw = W - lpad.l - lpad.r, ph = H_ - lpad.t - lpad.b;
+
+  const losses = lossHistory.map(h => h.mse);
+  const maxL = Math.max(...losses), minL = Math.min(...losses);
+  const maxI = lossHistory[lossHistory.length - 1].iter;
+
+  const scX = i => lpad.l + (i / maxI) * pw;
+  const scY = v => lpad.t + ph - (Math.log(v + 1e-9) - Math.log(minL + 1e-9)) /
+                   (Math.log(maxL + 1e-9) - Math.log(minL + 1e-9)) * ph;
+
+  lCtx.strokeStyle = '#f0f0f0'; lCtx.lineWidth = 1;
+  lCtx.beginPath(); lCtx.moveTo(lpad.l, lpad.t); lCtx.lineTo(lpad.l, lpad.t + ph);
+  lCtx.lineTo(lpad.l + pw, lpad.t + ph); lCtx.stroke();
+
+  lCtx.strokeStyle = '#888'; lCtx.lineWidth = 1.5;
+  lCtx.beginPath();
+  lossHistory.forEach((h, i) => {
+    const x = scX(h.iter), y = scY(h.mse);
+    i === 0 ? lCtx.moveTo(x, y) : lCtx.lineTo(x, y);
+  });
+  lCtx.stroke();
+
+  lCtx.fillStyle = '#777'; lCtx.font = '10px system-ui'; lCtx.textAlign = 'center';
+  lCtx.fillText('loss', lpad.l + pw / 2, lpad.t - 6);
+  lCtx.fillText('0', lpad.l, lpad.t + ph + 14);
+  lCtx.fillText(maxI, lpad.l + pw, lpad.t + ph + 14);
+}
+
+function draw() { drawMain(); drawLoss(); }
+
+// ── UI wiring ─────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-train').addEventListener('click', () => {
+  running ? pauseTraining() : startTraining();
+});
+
+document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+document.getElementById('sel-fn').addEventListener('change', resetAll);
+document.getElementById('sl-H').addEventListener('input', e => {
+  document.getElementById('val-H').textContent = e.target.value;
+  resetAll();
+});
+
+document.getElementById('sl-lr').addEventListener('input', e => {
+  lr = Math.pow(10, Number(e.target.value));
+  document.getElementById('val-lr').textContent = lr < 0.01
+    ? lr.toExponential(0) : lr.toFixed(3);
+});
+
+document.getElementById('sl-bs').addEventListener('input', e => {
+  batchSz = Number(e.target.value);
+  document.getElementById('val-bs').textContent = batchSz;
+});
+
+document.getElementById('tog-basis').addEventListener('change', e => {
+  showBasis = e.target.checked; draw();
+});
+document.getElementById('tog-kinks').addEventListener('change', e => {
+  showKinks = e.target.checked; draw();
+});
+
+resetAll();
+</script>
+
+<script>
+// Resize the drawing surface as well as CSS, keeping labels readable on small screens.
+function resizePlots(){
+ const stacked=innerWidth<=760;
+ for(const id of ['main-canvas', 'loss-canvas']){const c=document.getElementById(id),w=Math.max(1,Math.round(c.getBoundingClientRect().width));
+ const h=id==='sweep-canvas'?240:id==='loss-canvas'?(false?150:stacked?160:360):(stacked?280:false?300:360);
+ if(c.width!==w||c.height!==h){c.width=w;c.height=h;}}
+ draw();
+}
+let resizeFrame;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(resizePlots);});resizePlots();
+</script>
+</body>
+</html>
