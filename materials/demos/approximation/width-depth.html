@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif;
       background: #fff; color: #1a1a1a;
       font-size: 13px; line-height: 1.5;
     }
@@ -109,13 +109,16 @@ details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}deta
 @media(pointer:coarse){button,.ctrl-row select{min-height:44px}.toggle,summary,.site-nav a,.pager a{min-height:44px;display:inline-flex;align-items:center}.ctrl-row input[type=range]{min-height:40px}}
 
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="../demo.css">
+<script src="../demo.js"></script>
 <link rel="icon" href="data:,">
 </head>
 <body>
 <div class="page">
 
   <div class="credit">(made with Claude Code and ChatGPT)</div>
-<nav class="site-nav" aria-label="Lesson sequence"><a href="index.html">Overview</a><a href="relu-approx.html">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html" aria-current="page">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
+<nav class="site-nav" aria-label="Lesson sequence"><a href="../index.html">All demos</a><a href="index.html">Overview</a><a href="relu-approx.html">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html" aria-current="page">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
   <div class="course">MIT 6.7960 — Approximation Theory</div>
   <h1>Width vs Depth</h1>
   <p class="subtitle">
@@ -483,7 +486,7 @@ function drawMain() {
   ctx.beginPath(); ctx.moveTo(PAD.l, PAD.t); ctx.lineTo(PAD.l, PAD.t + ph);
   ctx.lineTo(PAD.l + pw, PAD.t + ph); ctx.stroke();
 
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
   [-1, 0, 1].forEach(v => ctx.fillText(v, scX(v), PAD.t + ph + 14));
   ctx.textAlign = 'right';
   [ylo, 0, yhi].forEach(v => {
@@ -518,7 +521,7 @@ function drawLoss() {
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
-  if (lossHistory.length < 2) { ctx.fillStyle='#777'; ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.fillText('Training loss',W/2,24); ctx.fillText('Press Train to begin',W/2,H/2); return; }
+  if (lossHistory.length < 2) { ctx.fillStyle='#222'; ctx.font='11px Lato, Verdana, Helvetica'; ctx.textAlign='center'; ctx.fillText('Training loss',W/2,24); ctx.fillText('Press Train to begin',W/2,H/2); return; }
 
   const lp = { t: 20, r: 12, b: 32, l: 12 };
   const pw = W - lp.l - lp.r, ph = H - lp.t - lp.b;
@@ -542,7 +545,7 @@ function drawLoss() {
     : ctx.lineTo(scX(h.iter), scY(h.mse)));
   ctx.stroke();
 
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
   ctx.fillText('loss', lp.l + pw / 2, lp.t - 6);
 }
 
@@ -565,7 +568,7 @@ function drawSweep() {
   ctx.lineTo(sp.l + pw, sp.t + ph); ctx.stroke();
 
   // X axis labels
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
   log2rs.forEach((v, i) => {
     if (W < 500 && i % 2 !== 0) return;
     const r = Math.pow(2, v);
@@ -574,13 +577,13 @@ function drawSweep() {
   });
 
   // Axis title + direction hints
-  ctx.fillStyle = '#777'; ctx.font = '9px system-ui';
+  ctx.fillStyle = '#222'; ctx.font = '9px Lato, Verdana, Helvetica';
   ctx.textAlign = 'left';  ctx.fillText('← deep', sp.l + 2, sp.t + ph + 28);
   ctx.textAlign = 'right'; ctx.fillText('wide →', sp.l + pw, sp.t + ph + 28);
   ctx.textAlign = 'center'; ctx.fillText('aspect ratio (width / depth)', sp.l + pw / 2, sp.t + ph + 42);
 
   // Y axis title
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'right';
   ctx.fillText('MSE', sp.l - 6, sp.t - 8);
 
   // Current AR marker (dashed vertical)
@@ -593,7 +596,7 @@ function drawSweep() {
   }
 
   if (sweepResults.length === 0) {
-    ctx.fillStyle = '#777'; ctx.font = '11px system-ui'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#222'; ctx.font = '11px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
     ctx.fillText(W < 500 ? 'Press Sweep to compare' : 'Press Sweep to compare architectures', sp.l + pw / 2, sp.t + ph / 2 + 4);
     return;
   }
@@ -614,7 +617,7 @@ function drawSweep() {
     const v = Math.exp(lv);
     ctx.strokeStyle = '#f4f4f4'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(sp.l, yp); ctx.lineTo(sp.l + pw, yp); ctx.stroke();
-    ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+    ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'right';
     ctx.fillText(v < 0.001 ? v.toExponential(0) : v.toFixed(3), sp.l - 4, yp + 3);
   }
 
@@ -633,7 +636,7 @@ function drawSweep() {
     ctx.fillStyle = '#1a1a1a';
     ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
     // Small label above dot showing width×depth
-    ctx.fillStyle = '#777'; ctx.font = '9px system-ui'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#222'; ctx.font = '9px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
     ctx.fillText(`${r.width}×${r.depth}`, x, y - (W < 500 && i % 2 ? 21 : 8));
   });
 

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive demos — 6.7960</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif; background: #fff; color: #1a1a1a; font-size: 14px; line-height: 1.55; }
+    .page { max-width: 720px; margin: 0 auto; padding: 48px 32px 72px; }
+    h1 { font-size: 22px; font-weight: 400; margin-bottom: 10px; }
+    .subtitle { color: #666; font-size: 13px; max-width: 540px; margin-bottom: 36px; }
+    .group { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #777; font-weight: 500; }
+    .group-note { color: #999; font-size: 12px; margin-bottom: 4px; }
+    .demo-list { list-style: none; margin: 0 0 36px; }
+    .demo-list li { border-top: 1px solid #f0f0f0; }
+    .demo-list li:last-child { border-bottom: 1px solid #f0f0f0; }
+    .demo-list a { display: block; padding: 16px 0; text-decoration: none; color: inherit; }
+    .demo-list a:hover .demo-title { text-decoration: underline; }
+    .demo-title { font-size: 14px; margin-bottom: 3px; }
+    .demo-desc { font-size: 12px; color: #666; max-width: 620px; }
+    :focus-visible { outline: 2px solid #508cdc; outline-offset: 4px; }
+    @media (max-width: 600px) { .page { padding: 28px 20px 48px; } }
+  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="demo.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+<div class="page">
+  <h1>Interactive demos</h1>
+
+  <h2 class="group">Thu 9/17 — Approximation theory</h2>
+  <ul class="demo-list">
+    <li><a href="approximation/relu-approx.html">
+      <div class="demo-title">01 — Approximation</div>
+      <div class="demo-desc">Fit a 1D target with a two-layer ReLU MLP. Slide H to see how more hidden units improve the piecewise-linear approximation.</div>
+    </a></li>
+    <li><a href="approximation/bias.html">
+      <div class="demo-title">02 — Effect of ReLU on Kinks</div>
+      <div class="demo-desc">Shift different functions with bias and see how ReLU creates or removes kinks, including on the Telgarsky sawtooth.</div>
+    </a></li>
+    <li><a href="approximation/width-depth.html">
+      <div class="demo-title">03 — Width vs Depth</div>
+      <div class="demo-desc">Fix the total neuron budget N, then vary the aspect ratio. Compare wide-shallow and narrow-deep networks on the same task.</div>
+    </a></li>
+    <li><a href="approximation/posenc.html">
+      <div class="demo-title">04 — Sinusoidal Positional Encoding</div>
+      <div class="demo-desc">Plain MLP versus a positional-encoding MLP on a noisy scatter plot. Drag H and L to see how the encoding unlocks high-frequency fitting.</div>
+    </a></li>
+  </ul>
+
+  <h2 class="group">Thu 10/1 — Generalization</h2>
+  <ul class="demo-list">
+    <li><a href="generalization/double-descent.html">
+      <div class="demo-title">Double descent</div>
+      <div class="demo-desc">Test error falls as the model grows, spikes when it can fit every training point, then falls again. Ridge removes the spike.</div>
+    </a></li>
+  </ul>
+</div>
+</body>
+</html>

@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif;
       background: #fff;
       color: #1a1a1a;
       font-size: 13px;
@@ -122,13 +122,16 @@ details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}deta
 @media(pointer:coarse){button,.ctrl-row select{min-height:44px}.toggle,summary,.site-nav a,.pager a{min-height:44px;display:inline-flex;align-items:center}.ctrl-row input[type=range]{min-height:40px}}
 
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="../demo.css">
+<script src="../demo.js"></script>
 <link rel="icon" href="data:,">
 </head>
 <body>
 <div class="page">
 
   <div class="credit">(made with Claude Code and ChatGPT)</div>
-<nav class="site-nav" aria-label="Lesson sequence"><a href="index.html">Overview</a><a href="relu-approx.html" aria-current="page">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
+<nav class="site-nav" aria-label="Lesson sequence"><a href="../index.html">All demos</a><a href="index.html">Overview</a><a href="relu-approx.html" aria-current="page">01 Approximation</a><a href="bias.html">02 Effect of ReLU on Kinks</a><a href="width-depth.html">03 Width vs Depth</a><a href="posenc.html">04 Sinusoidal Positional Encoding</a></nav>
   <div class="course">MIT 6.7960 — Approximation Theory</div>
   <h1>Approximation</h1>
   <p class="subtitle">
@@ -388,7 +391,7 @@ function drawMain() {
       mCtx.beginPath(); mCtx.moveTo(px, PAD.t); mCtx.lineTo(px, PAD.t + ph); mCtx.stroke();
       mCtx.setLineDash([]);
       // dot on x-axis
-      mCtx.fillStyle = '#777';
+      mCtx.fillStyle = '#222';
       mCtx.beginPath(); mCtx.arc(px, PAD.t + ph + 6, 2.5, 0, 2 * Math.PI); mCtx.fill();
     }
   }
@@ -429,7 +432,7 @@ function drawMain() {
   mCtx.stroke();
 
   // Axes labels
-  mCtx.fillStyle = '#777'; mCtx.font = '10px system-ui';
+  mCtx.fillStyle = '#222'; mCtx.font = '10px Lato, Verdana, Helvetica';
   mCtx.textAlign = 'center';
   [-1, 0, 1].forEach(v => mCtx.fillText(v, scX(v), PAD.t + ph + 16));
   mCtx.textAlign = 'right';
@@ -452,7 +455,7 @@ function drawMain() {
 function drawLoss() {
   const W = lossCanvas.width, H_ = lossCanvas.height;
   lCtx.clearRect(0, 0, W, H_);
-  if (lossHistory.length < 2) { lCtx.fillStyle='#777'; lCtx.font='11px system-ui'; lCtx.textAlign='center'; lCtx.fillText('Training loss',W/2,24); lCtx.fillText('Press Train to begin',W/2,H_/2); return; }
+  if (lossHistory.length < 2) { lCtx.fillStyle='#222'; lCtx.font='11px Lato, Verdana, Helvetica'; lCtx.textAlign='center'; lCtx.fillText('Training loss',W/2,24); lCtx.fillText('Press Train to begin',W/2,H_/2); return; }
 
   const lpad = { t: 20, r: 12, b: 36, l: 12 };
   const pw = W - lpad.l - lpad.r, ph = H_ - lpad.t - lpad.b;
@@ -477,7 +480,7 @@ function drawLoss() {
   });
   lCtx.stroke();
 
-  lCtx.fillStyle = '#777'; lCtx.font = '10px system-ui'; lCtx.textAlign = 'center';
+  lCtx.fillStyle = '#222'; lCtx.font = '10px Lato, Verdana, Helvetica'; lCtx.textAlign = 'center';
   lCtx.fillText('loss', lpad.l + pw / 2, lpad.t - 6);
   lCtx.fillText('0', lpad.l, lpad.t + ph + 14);
   lCtx.fillText(maxI, lpad.l + pw, lpad.t + ph + 14);

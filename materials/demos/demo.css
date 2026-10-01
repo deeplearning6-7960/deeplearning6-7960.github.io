@@ -1,0 +1,154 @@
+/* Match the course site: Lato, link blue #1772d0, hover orange #f09228. */
+
+body,
+button,
+select,
+input,
+textarea {
+  font-family: Lato, Verdana, Helvetica, sans-serif;
+  color: #000;
+}
+
+h1,
+.group,
+.section-head h2,
+.demo-title,
+.panel-label,
+.course {
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+
+h1 { font-size: 22px; }
+
+.course {
+  color: #1772d0;
+  font-size: 13px;
+}
+
+.group {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.subtitle,
+.demo-desc,
+.caption,
+.regime,
+details,
+.sweep-note,
+.credit,
+.section-head p,
+#sweep-status {
+  color: #333;
+}
+
+.ctrl-row label,
+.leg,
+.toggle,
+.val,
+.info,
+.stats,
+.panel-label,
+.arch-badge,
+.arch-badge span {
+  color: #000;
+}
+
+.stats strong { color: #000; font-weight: 700; }
+
+.site-nav,
+.pager,
+.comparison,
+.demo-list li {
+  border-color: #ccc;
+}
+
+.site-nav,
+.pager { font-size: 14px; }
+
+.site-nav a,
+.pager a,
+.demo-title {
+  color: #1772d0;
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.pager a:hover,
+.demo-list a:hover .demo-title {
+  color: #f09228;
+  text-decoration: underline;
+}
+
+.site-nav [aria-current] {
+  color: #000;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  background: #1772d0;
+  color: #fff;
+  border: 1px solid #1466b8;
+  border-radius: 0;
+}
+
+button:hover { background: #125ea8; color: #fff; }
+
+.btn-ghost {
+  background: #fff;
+  color: #1772d0;
+  border: 1px solid #1772d0;
+}
+
+.btn-ghost:hover {
+  background: #fff;
+  color: #f09228;
+  border-color: #f09228;
+}
+
+.modes button[aria-pressed="true"] {
+  background: #1772d0;
+  color: #fff;
+  border-color: #1466b8;
+}
+
+.ctrl-row select,
+select {
+  font-family: inherit;
+  color: #000;
+  background: #fff;
+  border: 1px solid #999;
+  border-radius: 0;
+}
+
+input[type="range"],
+.toggle input { accent-color: #1772d0; }
+
+:focus-visible {
+  outline: 2px solid #1772d0;
+  outline-offset: 2px;
+}
+
+#main-canvas,
+#loss-canvas,
+#sweep-canvas,
+.panel canvas,
+.canvases canvas {
+  border-color: #ccc;
+  border-radius: 0;
+}
+
+.panel-label {
+  text-align: left;
+  font-size: 13px;
+}
+
+svg text {
+  font-family: Lato, Verdana, Helvetica, sans-serif;
+  fill: #000;
+}
