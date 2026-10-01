@@ -41,6 +41,7 @@
     .plots figure { min-width: 0; }
     .plot { width: 100%; display: block; }
     svg text { font: 11px Lato, Verdana, Helvetica, sans-serif; fill: #777; }
+    svg text.axis-name { font-size: 12px; font-weight: 700; fill: #000; }
     .caption { font-size: 11px; color: #666; margin-top: 10px; line-height: 1.5; }
     .stats { display: flex; gap: 10px 24px; flex-wrap: wrap; margin-top: 20px; font-size: 12px; color: #666; }
     .stats strong { color: #222; font-weight: 500; }
@@ -78,11 +79,11 @@
     <a href="../index.html">All demos</a>
   </nav>
   <h1>Double descent</h1>
-  <p class="subtitle">Make the model bigger. Test error falls, spikes when the model can fit every training point, then falls again.</p>
+  <p class="subtitle">A linear model, one weight per input. Test error falls as the width grows, spikes when the model can fit every training point, then falls again.</p>
 
   <div class="controls">
     <div class="ctrl-row">
-      <label for="sl-p">Model size p</label>
+      <label for="sl-p">Model width w</label>
       <input id="sl-p" type="range" min="1" max="96" step="1" value="32">
       <output class="val" id="val-p" for="sl-p">32</output>
     </div>
@@ -92,17 +93,7 @@
       <output class="val" id="val-n" for="sl-n">32</output>
     </div>
     <div class="ctrl-row">
-      <label for="sl-k">Signal size k</label>
-      <input id="sl-k" type="range" min="1" max="12" step="1" value="4">
-      <output class="val" id="val-k" for="sl-k">4</output>
-    </div>
-    <div class="ctrl-row">
-      <label for="sl-sig">Noise σ</label>
-      <input id="sl-sig" type="range" min="0.2" max="1.6" step="0.05" value="0.8">
-      <output class="val" id="val-sig" for="sl-sig">0.80</output>
-    </div>
-    <div class="ctrl-row">
-      <label for="sl-lam">Ridge λ</label>
+      <label for="sl-lam">Weight decay</label>
       <input id="sl-lam" type="range" min="0" max="100" step="1" value="0">
       <output class="val" id="val-lam" for="sl-lam">0</output>
     </div>
@@ -115,32 +106,24 @@
   </div>
 
   <div class="legend">
-    <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>typical test error</span>
-    <span class="leg"><span class="swatch" style="background:#1772d0"></span>this sample</span>
-    <span class="leg"><span class="swatch" style="background:#bbb"></span>noise</span>
+    <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>median test error</span>
+    <span class="leg"><span class="swatch" style="background:#1772d0"></span>this training set</span>
     <label class="toggle"><input id="tog-log" type="checkbox" checked> log scale</label>
   </div>
 
   <div class="plots">
     <figure>
-      <svg id="risk" class="plot" role="img" aria-label="Test risk and training error versus number of parameters"></svg>
-      <figcaption class="caption">Drag model size. The spike is at p = n, where training error hits zero.</figcaption>
+      <svg id="risk" class="plot" role="img" aria-label="Test error versus model width"></svg>
+      <figcaption class="caption">The spike is where model width equals the number of training points, w = n. Training error hits zero there.</figcaption>
     </figure>
     <figure>
-      <svg id="pred" class="plot" role="img" aria-label="Predicted response versus true signal for one draw"></svg>
+      <svg id="pred" class="plot" role="img" aria-label="Predicted label versus true label"></svg>
       <figcaption class="caption" id="pred-note"></figcaption>
     </figure>
   </div>
 
   <div class="stats" id="stats" aria-live="polite"></div>
   <p class="regime" id="regime"></p>
-
-  <details>
-    <summary>What’s going on?</summary>
-    <p>The true pattern uses only k inputs. The model sees the first p of them and fits a straight line to noisy labels. Test error is how wrong that line is on a new input. The black curve is the middle of many random samples, so one unlucky sample does not set the height of the spike.</p>
-    <p>Left of the spike, error falls until the model can see the pattern, then rises as extra inputs fit noise. At p = n the line can pass through every training label, noise included. Past that, many lines can, and the plot keeps the shortest. More parameters let that line stay smaller, so test error falls again. Ridge penalizes large lines and shaves off the spike. Wider neural nets show the same shape.</p>
-    <p>On the right, each dot is a new input. Across is the true answer, up is the model’s guess. Dots on the dashed line mean the pattern was recovered. Fitting the noisy training labels is a different job, which is why a perfect training fit can still miss that line.</p>
-  </details>
 
 </div>
 <script>
@@ -150,6 +133,8 @@ const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const TRIALS = 21;
 const LIM = 3.4;
+const SIGNAL = 4;
+const NOISE = 0.8;
 
 let drawSeed = 1;
 let curve = [];
@@ -310,14 +295,12 @@ function fmt(v) {
 }
 function read() {
   const n = +$('sl-n').value;
-  const k = +$('sl-k').value;
-  const sigma = +$('sl-sig').value;
   const lam = lamOf(+$('sl-lam').value);
   const sl = $('sl-p');
   const pMax = n * 3;
   sl.max = String(pMax);
   if (+sl.value > pMax) sl.value = String(pMax);
-  return { n, k, sigma, lam, p: +sl.value, pMax, log: $('tog-log').checked };
+  return { n, k: SIGNAL, sigma: NOISE, lam, p: +sl.value, pMax, log: $('tog-log').checked };
 }
 
 function oneTrial(n, k, sigma, lam, seed, ps) {
@@ -461,21 +444,19 @@ function atCurve(p, log) {
   };
   return { p, risk: mix(a.risk, b.risk), train: mix(a.train, b.train) };
 }
-function regimeCopy(p, n, k, train) {
+function regimeCopy(w, n, train) {
   const memorized = train < 0.02;
-  if (p === n) {
+  if (w === n) {
     return memorized
-      ? 'Just enough parameters to hit every training point, including the noise. Test error spikes.'
-      : 'Ridge keeps the fit from copying the noise, so the spike is smaller.';
+      ? 'Width equals the number of training points, so the line can pass through every one. Test error spikes.'
+      : 'Weight decay keeps the line from passing through every training point, so the spike is smaller.';
   }
-  if (p > n) {
+  if (w > n) {
     return memorized
-      ? 'Training error is already zero. A larger model finds a gentler fit, so test error falls.'
-      : 'Ridge is strong enough that the fit never memorizes the training set.';
+      ? 'Training error is already zero. A wider model finds smaller weights, so test error falls.'
+      : 'Weight decay is strong enough that training error never hits zero.';
   }
-  if (p < k) return 'Part of the real pattern is still missing, so a larger model helps.';
-  if (p === k) return 'The model can see the whole pattern. This is the low point of the curve.';
-  return 'Extra parameters mostly fit noise, so test error rises toward the spike.';
+  return 'Fewer weights than training points, so the line cannot pass through every one yet.';
 }
 
 function tickLabel(v) {
@@ -484,9 +465,17 @@ function tickLabel(v) {
   if (v >= 1) return String(Math.round(v * 10) / 10);
   return String(Math.round(v * 100) / 100);
 }
+function axisName(svg, x, y, text, rotate) {
+  if (!rotate) {
+    el('text', { x, y, class: 'axis-name', 'text-anchor': 'middle' }, svg, text);
+    return;
+  }
+  const g = el('g', { transform: `translate(${x} ${y}) rotate(${rotate})` }, svg);
+  el('text', { x: 0, y: 0, class: 'axis-name', 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, g, text);
+}
 function drawRisk(state, here, draw) {
-  const { svg, w, h } = chartBox('risk', 360);
-  const m = { l: 44, r: 16, t: 22, b: 32 };
+  const { svg, w, h } = chartBox('risk', 380);
+  const m = { l: 72, r: 18, t: 28, b: 52 };
   const risks = curve.map(r => r.risk);
   const peak = Math.max(...risks, here ? here.risk : 0, draw ? draw.risk : 0, state.sigma ** 2);
   const testFloor = Math.min(...risks, state.sigma ** 2);
@@ -516,16 +505,8 @@ function drawRisk(state, here, draw) {
     el('line', { x1: m.l, x2: w - m.r, y1: y, y2: y, stroke: '#f3f3f3' }, svg);
     el('text', { x: m.l - 8, y: y + 4, 'text-anchor': 'end' }, svg, tickLabel(v));
   }
-  const yNoise = yOf(state.sigma ** 2);
-  if (state.sigma ** 2 >= ymin) {
-    el('line', { x1: m.l, x2: w - m.r, y1: yNoise, y2: yNoise, stroke: '#bbb', 'stroke-dasharray': '4 4' }, svg);
-  }
-  el('line', { x1: xOf(state.k), x2: xOf(state.k), y1: m.t, y2: h - m.b, stroke: '#e6e6e6' }, svg);
-  if (Math.abs(xOf(state.k) - xOf(state.n)) > 28) {
-    el('text', { x: Math.min(xOf(state.k) + 4, w - m.r - 12), y: 12 }, svg, 'k');
-  }
   el('line', { x1: xOf(state.n), x2: xOf(state.n), y1: m.t, y2: h - m.b, stroke: '#c8c8c8' }, svg);
-  el('text', { x: Math.min(xOf(state.n) + 4, w - m.r - 28), y: 12 }, svg, 'p = n');
+  el('text', { x: Math.min(xOf(state.n) + 6, w - m.r - 36), y: 16, class: 'axis-name' }, svg, 'w = n');
 
   const poly = (rows, key, color, width, dash, stopAtFloor) => {
     if (!rows.length) return;
@@ -549,15 +530,17 @@ function drawRisk(state, here, draw) {
   if (here) el('circle', { cx: x, cy: yOf(Math.max(here.risk, state.log ? ymin : 0)), r: 4.5, fill: '#1a1a1a' }, svg);
   if (draw) el('circle', { cx: x, cy: yOf(Math.max(draw.risk, state.log ? ymin : 0)), r: 4, fill: '#fff', stroke: '#1772d0', 'stroke-width': 2 }, svg);
   for (const p of [1, state.n, state.pMax]) {
-    el('text', { x: xOf(p), y: h - 12, 'text-anchor': p === state.pMax ? 'end' : p === 1 ? 'start' : 'middle' }, svg, String(p));
+    el('text', { x: xOf(p), y: h - 30, 'text-anchor': p === state.pMax ? 'end' : p === 1 ? 'start' : 'middle' }, svg, String(p));
   }
+  axisName(svg, 18, (m.t + h - m.b) / 2, 'test error', -90);
+  axisName(svg, (m.l + w - m.r) / 2, h - 8, 'model width w');
   svg.setAttribute('aria-label', here
-    ? `Typical test error ${fmt(here.risk)} at model size ${state.p}. The spike is at ${state.n}.`
-    : 'Test error versus model size');
+    ? `Median test error ${fmt(here.risk)} at model width ${state.p}. The spike is at width ${state.n}.`
+    : 'Test error versus model width');
 }
 function drawPred(state, draw) {
-  const { svg, w, h } = chartBox('pred', 360);
-  const m = { l: 42, r: 12, t: 16, b: 36 };
+  const { svg, w, h } = chartBox('pred', 380);
+  const m = { l: 78, r: 16, t: 16, b: 52 };
   const xOf = v => m.l + (v + LIM) / (2 * LIM) * (w - m.l - m.r);
   const yOf = v => m.t + (1 - (v + LIM) / (2 * LIM)) * (h - m.t - m.b);
   for (const v of [-3, -1.5, 0, 1.5, 3]) {
@@ -583,9 +566,11 @@ function drawPred(state, draw) {
         : { cx, cy, r: 3, fill: '#1a1a1a' }, svg);
     }
   }
+  axisName(svg, 18, (m.t + h - m.b) / 2, 'predicted label', -90);
+  axisName(svg, (m.l + w - m.r) / 2, h - 8, 'true label');
   const note = outside
-    ? `Across: true answer. Up: the model’s guess. ${outside} guesses are off this chart.`
-    : 'Across: true answer. Up: the model’s guess. On the dashed line, the pattern was recovered.';
+    ? `${outside} predictions fall outside this chart. On the dashed line, the prediction matches the true label.`
+    : 'Each point is a new input. On the dashed line, the prediction matches the true label.';
   $('pred-note').textContent = note;
   svg.setAttribute('aria-label', note);
 }
@@ -594,8 +579,6 @@ function render() {
   const state = read();
   $('val-p').textContent = String(state.p);
   $('val-n').textContent = String(state.n);
-  $('val-k').textContent = String(state.k);
-  $('val-sig').textContent = state.sigma.toFixed(2);
   $('val-lam').textContent = formatLam(state.lam);
   const here = atCurve(state.p, state.log);
   const draw = spot ? evalDraw(spot, state.p, state.k, state.sigma, state.lam) : null;
@@ -606,10 +589,10 @@ function render() {
     <span>${name}</span>
     <span>Test error <strong>${here ? fmt(here.risk) : '—'}</strong></span>
     <span>Train error <strong>${here ? fmt(here.train) : '—'}</strong></span>
-    <span>This sample <strong>${draw ? fmt(draw.risk) : '—'}</strong></span>
-    <span>Fit size <strong>${draw ? fmt(draw.norm) : '—'}</strong></span>
-    <span>p / n <strong>${(state.p / state.n).toFixed(2)}</strong></span>`;
-  $('regime').textContent = regimeCopy(state.p, state.n, state.k, here ? here.train : 1);
+    <span>This training set <strong>${draw ? fmt(draw.risk) : '—'}</strong></span>
+    <span>Weight norm <strong>${draw ? fmt(draw.norm) : '—'}</strong></span>
+    <span>w / n <strong>${(state.p / state.n).toFixed(2)}</strong></span>`;
+  $('regime').textContent = regimeCopy(state.p, state.n, here ? here.train : 1);
 }
 function rebuild() {
   const state = read();
@@ -620,7 +603,7 @@ function rebuild() {
   render();
 }
 
-for (const id of ['sl-n', 'sl-k', 'sl-sig', 'sl-lam']) $(id).addEventListener('input', rebuild);
+for (const id of ['sl-n', 'sl-lam']) $(id).addEventListener('input', rebuild);
 $('sl-p').addEventListener('input', render);
 $('tog-log').addEventListener('change', render);
 $('btn-sample').addEventListener('click', () => { drawSeed++; rebuild(); });
