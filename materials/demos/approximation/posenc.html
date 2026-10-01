@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif;
       background: #fff;
       color: #1a1a1a;
       font-size: 13px;
@@ -103,6 +103,9 @@ details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}deta
 @media(pointer:coarse){button,.ctrl-row select{min-height:44px}.toggle,summary,.site-nav a,.pager a{min-height:44px;display:inline-flex;align-items:center}.ctrl-row input[type=range]{min-height:40px}}
 
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="../demo.css">
+<script src="../demo.js"></script>
 <link rel="icon" href="data:,">
 </head>
 <body>
@@ -150,8 +153,8 @@ details{margin:20px 0;line-height:1.6}summary{padding:6px 0;min-height:32px}deta
       <svg width="10" height="10" style="flex-shrink:0"><circle cx="5" cy="5" r="4" fill="#1a1a1a"/></svg>
       data points
     </div>
-    <div class="leg"><div class="swatch" style="background:#4488cc"></div>plain MLP fit</div>
-    <div class="leg"><div class="swatch" style="background:#cc4444"></div>pos-enc MLP fit</div>
+    <div class="leg"><div class="swatch" style="background:#1772d0"></div>plain MLP fit</div>
+    <div class="leg"><div class="swatch" style="background:#f09228"></div>pos-enc MLP fit</div>
   </div>
 
   <div class="panels">
@@ -370,7 +373,7 @@ function drawFitCanvas(canvasId, net, encode, color) {
   ctx.lineTo(PAD.l + pw, PAD.t + ph); ctx.stroke();
 
   // Axis labels
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'center';
   [-1, 0, 1].forEach(v => ctx.fillText(v, scX(v), PAD.t + ph + 14));
   ctx.textAlign = 'right';
   [ylo, 0, yhi].forEach(v => {
@@ -408,7 +411,7 @@ function drawLoss() {
   const W = canvas.width, H_ = canvas.height;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H_);
-  if (lossPlain.length < 2) { ctx.fillStyle='#777'; ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.fillText('Training loss',W/2,24); ctx.fillText('Press Train to begin',W/2,H_/2); return; }
+  if (lossPlain.length < 2) { ctx.fillStyle='#222'; ctx.font='11px Lato, Verdana, Helvetica'; ctx.textAlign='center'; ctx.fillText('Training loss',W/2,24); ctx.fillText('Press Train to begin',W/2,H_/2); return; }
 
   const lp = { t: 14, r: 20, b: 26, l: 48 };
   const pw = W - lp.l - lp.r, ph = H_ - lp.t - lp.b;
@@ -434,18 +437,18 @@ function drawLoss() {
     ctx.stroke();
   };
 
-  drawCurve(lossPlain,  '#4488cc');
-  drawCurve(lossPosenc, '#cc4444');
+  drawCurve(lossPlain,  '#1772d0');
+  drawCurve(lossPosenc, '#f09228');
 
-  ctx.fillStyle = '#777'; ctx.font = '10px system-ui'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#222'; ctx.font = '10px Lato, Verdana, Helvetica'; ctx.textAlign = 'left';
   ctx.fillText('MSE (log)', lp.l + 4, lp.t + 10);
 }
 
 function draw() {
   const encodePlain  = x => [x];
   const encodePosenc = x => posEnc(x, L);
-  const msePlain  = drawFitCanvas('canvas-plain',  netPlain,  encodePlain,  '#4488cc');
-  const msePosenc = drawFitCanvas('canvas-posenc', netPosenc, encodePosenc, '#cc4444');
+  const msePlain  = drawFitCanvas('canvas-plain',  netPlain,  encodePlain,  '#1772d0');
+  const msePosenc = drawFitCanvas('canvas-posenc', netPosenc, encodePosenc, '#f09228');
   drawLoss();
   document.getElementById('info-iter').textContent   = `iter ${iter}`;
   document.getElementById('info-plain').textContent  =

@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif;
       background: #fff;
       color: #1a1a1a;
       font-size: 13px;
@@ -40,7 +40,7 @@
     .plots { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; }
     .plots figure { min-width: 0; }
     .plot { width: 100%; display: block; }
-    svg text { font: 11px system-ui, sans-serif; fill: #777; }
+    svg text { font: 11px Lato, Verdana, Helvetica, sans-serif; fill: #777; }
     .caption { font-size: 11px; color: #666; margin-top: 10px; line-height: 1.5; }
     .stats { display: flex; gap: 10px 24px; flex-wrap: wrap; margin-top: 20px; font-size: 12px; color: #666; }
     .stats strong { color: #222; font-weight: 500; }
@@ -49,7 +49,7 @@
     summary { cursor: pointer; padding: 6px 0; min-height: 32px; }
     details p { margin: 10px 0 0; max-width: 720px; }
     .pager { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid #eee; margin-top: 32px; padding-top: 16px; font-size: 12px; }
-    :focus-visible { outline: 2px solid #508cdc; outline-offset: 4px; }
+    :focus-visible { outline: 2px solid #1772d0; outline-offset: 4px; }
     @media (min-width: 1200px) { .page { padding-top: 48px; } }
     @media (max-width: 760px) {
       .page { padding: 28px 24px 40px; }
@@ -67,13 +67,15 @@
       .ctrl-row input[type=range] { min-height: 40px; }
     }
   </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="../demo.css">
+  <script src="../demo.js"></script>
   <link rel="icon" href="data:,">
 </head>
 <body>
 <div class="page">
   <nav class="site-nav" aria-label="Demos">
     <a href="../index.html">All demos</a>
-    <a href="double-descent.html" aria-current="page">Double descent</a>
   </nav>
   <h1>Double descent</h1>
   <p class="subtitle">Make the model bigger. Test error falls, spikes when the model can fit every training point, then falls again.</p>
@@ -114,7 +116,7 @@
 
   <div class="legend">
     <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>typical test error</span>
-    <span class="leg"><span class="swatch" style="background:#508cdc"></span>this sample</span>
+    <span class="leg"><span class="swatch" style="background:#1772d0"></span>this sample</span>
     <span class="leg"><span class="swatch" style="background:#bbb"></span>noise</span>
     <label class="toggle"><input id="tog-log" type="checkbox" checked> log scale</label>
   </div>
@@ -140,7 +142,6 @@
     <p>On the right, each dot is a new input. Across is the true answer, up is the model’s guess. Dots on the dashed line mean the pattern was recovered. Fitting the noisy training labels is a different job, which is why a perfect training fit can still miss that line.</p>
   </details>
 
-  <footer class="pager"><a href="../index.html">← All demos</a></footer>
 </div>
 <script>
 'use strict';
@@ -540,13 +541,13 @@ function drawRisk(state, here, draw) {
       'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash
     }, svg);
   };
-  poly(spotSeries, 'risk', '#508cdc', 1.5, '', false);
+  poly(spotSeries, 'risk', '#1772d0', 1.5, '', false);
   poly(curve, 'risk', '#1a1a1a', 2.25, '', false);
 
   const x = xOf(state.p);
   el('line', { x1: x, x2: x, y1: m.t, y2: h - m.b, stroke: '#ddd' }, svg);
   if (here) el('circle', { cx: x, cy: yOf(Math.max(here.risk, state.log ? ymin : 0)), r: 4.5, fill: '#1a1a1a' }, svg);
-  if (draw) el('circle', { cx: x, cy: yOf(Math.max(draw.risk, state.log ? ymin : 0)), r: 4, fill: '#fff', stroke: '#508cdc', 'stroke-width': 2 }, svg);
+  if (draw) el('circle', { cx: x, cy: yOf(Math.max(draw.risk, state.log ? ymin : 0)), r: 4, fill: '#fff', stroke: '#1772d0', 'stroke-width': 2 }, svg);
   for (const p of [1, state.n, state.pMax]) {
     el('text', { x: xOf(p), y: h - 12, 'text-anchor': p === state.pMax ? 'end' : p === 1 ? 'start' : 'middle' }, svg, String(p));
   }
