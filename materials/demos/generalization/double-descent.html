@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Double descent — 6.7960</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .page { max-width: 1040px; margin: 0 auto; padding: 40px 32px 56px; }
+    .course { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #777; margin-bottom: 6px; }
+    h1 { font-size: 22px; font-weight: 400; margin-bottom: 6px; }
+    .subtitle { color: #666; font-size: 13px; max-width: 720px; margin-bottom: 24px; }
+    .site-nav { display: flex; gap: 8px 20px; flex-wrap: wrap; border-bottom: 1px solid #eee; padding: 0 0 16px; margin: 0 0 24px; font-size: 11px; align-items: center; }
+    .site-nav a, .pager a { color: #777; text-decoration: none; padding: 6px 0; display: inline-block; }
+    .site-nav a:hover, .pager a:hover { color: #111; text-decoration: underline; }
+    .site-nav [aria-current] { color: #111; font-weight: 600; }
+    .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 16px 24px; width: 100%; margin: 0 0 20px; align-items: start; }
+    .ctrl-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; min-width: 0; align-items: center; }
+    .ctrl-row label { grid-column: 1 / -1; min-width: 0; font-size: 12px; color: #555; }
+    .ctrl-row input[type=range] { width: 100%; min-width: 0; min-height: 32px; margin: 0; accent-color: #555; }
+    .val { min-width: 42px; text-align: right; font-size: 12px; color: #666; font-variant-numeric: tabular-nums; }
+    .training-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin: 0 0 20px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+    button { background: #1a1a1a; color: #fff; border: none; border-radius: 4px; min-height: 36px; padding: 7px 16px; font-size: 12px; font-family: inherit; cursor: pointer; line-height: 1.3; }
+    button:hover { background: #333; }
+    .btn-ghost { background: #fff; color: #555; border: 1px solid #ccc; }
+    .btn-ghost:hover { background: #f5f5f5; }
+    .legend { display: flex; gap: 8px 20px; margin: 0 0 12px; align-items: center; flex-wrap: wrap; }
+    .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #666; }
+    .swatch { width: 24px; height: 2.5px; flex-shrink: 0; }
+    .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #666; cursor: pointer; user-select: none; min-height: 32px; }
+    .toggle input { accent-color: #555; }
+    .plots { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; }
+    .plots figure { min-width: 0; }
+    .plot { width: 100%; display: block; }
+    svg text { font: 11px system-ui, sans-serif; fill: #777; }
+    .caption { font-size: 11px; color: #666; margin-top: 10px; line-height: 1.5; }
+    .stats { display: flex; gap: 10px 24px; flex-wrap: wrap; margin-top: 20px; font-size: 12px; color: #666; }
+    .stats strong { color: #222; font-weight: 500; }
+    .regime { margin-top: 12px; max-width: 720px; color: #444; font-size: 13px; }
+    details { margin: 20px 0; color: #666; font-size: 12px; line-height: 1.6; }
+    summary { cursor: pointer; padding: 6px 0; min-height: 32px; }
+    details p { margin: 10px 0 0; max-width: 720px; }
+    .pager { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid #eee; margin-top: 32px; padding-top: 16px; font-size: 12px; }
+    :focus-visible { outline: 2px solid #508cdc; outline-offset: 4px; }
+    @media (min-width: 1200px) { .page { padding-top: 48px; } }
+    @media (max-width: 760px) {
+      .page { padding: 28px 24px 40px; }
+      .plots { grid-template-columns: minmax(0, 1fr); }
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .site-nav { gap: 4px 16px; }
+    }
+    @media (max-width: 420px) {
+      .page { padding: 22px 16px 32px; }
+      .controls { gap: 14px 16px; }
+      .subtitle { font-size: 12px; }
+    }
+    @media (pointer: coarse) {
+      button, .toggle, summary, .site-nav a, .pager a { min-height: 44px; }
+      .ctrl-row input[type=range] { min-height: 40px; }
+    }
+  </style>
+  <link rel="icon" href="data:,">
+</head>
+<body>
+<div class="page">
+  <nav class="site-nav" aria-label="Demos">
+    <a href="../index.html">All demos</a>
+    <a href="double-descent.html" aria-current="page">Double descent</a>
+  </nav>
+  <h1>Double descent</h1>
+  <p class="subtitle">Make the model bigger. Test error falls, spikes when the model can fit every training point, then falls again.</p>
+
+  <div class="controls">
+    <div class="ctrl-row">
+      <label for="sl-p">Model size p</label>
+      <input id="sl-p" type="range" min="1" max="96" step="1" value="32">
+      <output class="val" id="val-p" for="sl-p">32</output>
+    </div>
+    <div class="ctrl-row">
+      <label for="sl-n">Training points n</label>
+      <input id="sl-n" type="range" min="20" max="48" step="1" value="32">
+      <output class="val" id="val-n" for="sl-n">32</output>
+    </div>
+    <div class="ctrl-row">
+      <label for="sl-k">Signal size k</label>
+      <input id="sl-k" type="range" min="1" max="12" step="1" value="4">
+      <output class="val" id="val-k" for="sl-k">4</output>
+    </div>
+    <div class="ctrl-row">
+      <label for="sl-sig">Noise σ</label>
+      <input id="sl-sig" type="range" min="0.2" max="1.6" step="0.05" value="0.8">
+      <output class="val" id="val-sig" for="sl-sig">0.80</output>
+    </div>
+    <div class="ctrl-row">
+      <label for="sl-lam">Ridge λ</label>
+      <input id="sl-lam" type="range" min="0" max="100" step="1" value="0">
+      <output class="val" id="val-lam" for="sl-lam">0</output>
+    </div>
+  </div>
+
+  <div class="training-toolbar">
+    <div class="btn-row">
+      <button id="btn-sample" class="btn-ghost" type="button">Resample</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>typical test error</span>
+    <span class="leg"><span class="swatch" style="background:#508cdc"></span>this sample</span>
+    <span class="leg"><span class="swatch" style="background:#bbb"></span>noise</span>
+    <label class="toggle"><input id="tog-log" type="checkbox" checked> log scale</label>
+  </div>
+
+  <div class="plots">
+    <figure>
+      <svg id="risk" class="plot" role="img" aria-label="Test risk and training error versus number of parameters"></svg>
+      <figcaption class="caption">Drag model size. The spike is at p = n, where training error hits zero.</figcaption>
+    </figure>
+    <figure>
+      <svg id="pred" class="plot" role="img" aria-label="Predicted response versus true signal for one draw"></svg>
+      <figcaption class="caption" id="pred-note"></figcaption>
+    </figure>
+  </div>
+
+  <div class="stats" id="stats" aria-live="polite"></div>
+  <p class="regime" id="regime"></p>
+
+  <details>
+    <summary>What’s going on?</summary>
+    <p>The true pattern uses only k inputs. The model sees the first p of them and fits a straight line to noisy labels. Test error is how wrong that line is on a new input. The black curve is the middle of many random samples, so one unlucky sample does not set the height of the spike.</p>
+    <p>Left of the spike, error falls until the model can see the pattern, then rises as extra inputs fit noise. At p = n the line can pass through every training label, noise included. Past that, many lines can, and the plot keeps the shortest. More parameters let that line stay smaller, so test error falls again. Ridge penalizes large lines and shaves off the spike. Wider neural nets show the same shape.</p>
+    <p>On the right, each dot is a new input. Across is the true answer, up is the model’s guess. Dots on the dashed line mean the pattern was recovered. Fitting the noisy training labels is a different job, which is why a perfect training fit can still miss that line.</p>
+  </details>
+
+  <footer class="pager"><a href="../index.html">← All demos</a></footer>
+</div>
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const TRIALS = 21;
+const LIM = 3.4;
+
+let drawSeed = 1;
+let curve = [];
+let spot = null;
+let spotSeries = [];
+
+function mulberry32(a) {
+  return function () {
+    a |= 0;
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function gauss(rng) {
+  let u = 1 - rng();
+  if (u < 1e-12) u = 1e-12;
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+}
+function solve(A, b) {
+  const n = b.length;
+  const M = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const row = new Float64Array(n + 1);
+    const Ai = A[i];
+    for (let j = 0; j < n; j++) row[j] = Ai[j];
+    row[n] = b[i];
+    M[i] = row;
+  }
+  for (let c = 0; c < n; c++) {
+    let piv = c, best = Math.abs(M[c][c]);
+    for (let r = c + 1; r < n; r++) {
+      const v = Math.abs(M[r][c]);
+      if (v > best) { best = v; piv = r; }
+    }
+    if (best < 1e-12) return null;
+    if (piv !== c) { const t = M[c]; M[c] = M[piv]; M[piv] = t; }
+    const rowc = M[c];
+    const div = rowc[c];
+    for (let j = c; j <= n; j++) rowc[j] /= div;
+    for (let r = 0; r < n; r++) {
+      if (r === c) continue;
+      const f = M[r][c];
+      if (f === 0) continue;
+      const row = M[r];
+      for (let j = c; j <= n; j++) row[j] -= f * rowc[j];
+    }
+  }
+  const x = new Float64Array(n);
+  for (let i = 0; i < n; i++) x[i] = M[i][n];
+  return x;
+}
+function fit(X, y, lam) {
+  const n = X.length;
+  const p = X[0].length;
+  const reg = Math.max(n * lam, 1e-8);
+  if (p <= n) {
+    const G = Array.from({ length: p }, () => new Float64Array(p));
+    const rhs = new Float64Array(p);
+    for (let i = 0; i < n; i++) {
+      const Xi = X[i];
+      for (let a = 0; a < p; a++) {
+        rhs[a] += Xi[a] * y[i];
+        const Xia = Xi[a];
+        for (let b = a; b < p; b++) G[a][b] += Xia * Xi[b];
+      }
+    }
+    const G2 = Array.from({ length: p }, (_, a) => {
+      const row = new Float64Array(p);
+      for (let b = 0; b < p; b++) row[b] = b < a ? G[b][a] : G[a][b];
+      row[a] += reg;
+      return row;
+    });
+    return solve(G2, rhs);
+  }
+  const K = Array.from({ length: n }, () => new Float64Array(n));
+  for (let i = 0; i < n; i++) {
+    const Xi = X[i];
+    for (let j = i; j < n; j++) {
+      let s = 0;
+      const Xj = X[j];
+      for (let a = 0; a < p; a++) s += Xi[a] * Xj[a];
+      K[i][j] = s;
+      if (i !== j) K[j][i] = s;
+    }
+  }
+  for (let i = 0; i < n; i++) K[i][i] += reg;
+  const alpha = solve(K, y);
+  if (!alpha) return null;
+  const beta = new Float64Array(p);
+  for (let a = 0; a < p; a++) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += X[i][a] * alpha[i];
+    beta[a] = s;
+  }
+  return beta;
+}
+function prefix(X, p) {
+  return X.map(row => row.subarray(0, p));
+}
+function trainMSE(X, y, bhat) {
+  const n = y.length;
+  const p = bhat.length;
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    let pred = 0;
+    const Xi = X[i];
+    for (let j = 0; j < p; j++) pred += Xi[j] * bhat[j];
+    const e = pred - y[i];
+    s += e * e;
+  }
+  return s / n;
+}
+function paramRisk(bhat, p, k, scale, sigma) {
+  let ex = 0;
+  const m = Math.max(p, k);
+  for (let j = 0; j < m; j++) {
+    const est = j < p ? bhat[j] : 0;
+    const truth = j < k ? scale : 0;
+    const e = est - truth;
+    ex += e * e;
+  }
+  return ex + sigma * sigma;
+}
+function median(a) {
+  if (!a.length) return NaN;
+  const b = a.slice().sort((x, y) => x - y);
+  return b[b.length >> 1];
+}
+function pGrid(n, k) {
+  const P = n * 3;
+  const set = new Set([1, n, Math.min(Math.max(k, 1), P)]);
+  for (let i = 0; i <= 28; i++) set.add(Math.max(1, Math.min(P, Math.round(1 + (P - 1) * (i / 28)))));
+  for (let d = -6; d <= 8; d++) {
+    const p = n + d;
+    if (p >= 1 && p <= P) set.add(p);
+  }
+  return [...set].sort((a, b) => a - b);
+}
+function lamOf(slider) {
+  const v = Number(slider);
+  if (v <= 0) return 0;
+  return 10 ** (-3 + (v / 100) * 3);
+}
+function formatLam(lam) {
+  if (lam === 0) return '0';
+  if (lam >= 0.1) return lam.toFixed(2);
+  if (lam >= 0.01) return lam.toFixed(3);
+  return lam.toExponential(1);
+}
+function fmt(v) {
+  if (!Number.isFinite(v)) return '—';
+  if (v < 0.001) return '< 0.001';
+  if (v >= 100) return v.toFixed(0);
+  if (v >= 10) return v.toFixed(1);
+  return v.toFixed(2);
+}
+function read() {
+  const n = +$('sl-n').value;
+  const k = +$('sl-k').value;
+  const sigma = +$('sl-sig').value;
+  const lam = lamOf(+$('sl-lam').value);
+  const sl = $('sl-p');
+  const pMax = n * 3;
+  sl.max = String(pMax);
+  if (+sl.value > pMax) sl.value = String(pMax);
+  return { n, k, sigma, lam, p: +sl.value, pMax, log: $('tog-log').checked };
+}
+
+function oneTrial(n, k, sigma, lam, seed, ps) {
+  const P = n * 3;
+  const d = Math.max(P, k);
+  const scale = 1 / Math.sqrt(k);
+  const rng = mulberry32(seed);
+  const X = Array.from({ length: n }, () => Float64Array.from({ length: d }, () => gauss(rng)));
+  const y = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let j = 0; j < k; j++) s += X[i][j] * scale;
+    y[i] = s + gauss(rng) * sigma;
+  }
+  const rows = [];
+  for (const p of ps) {
+    const bhat = fit(prefix(X, p), y, lam);
+    if (!bhat) continue;
+    rows.push({
+      p,
+      risk: paramRisk(bhat, p, k, scale, sigma),
+      train: trainMSE(prefix(X, p), y, bhat)
+    });
+  }
+  return { X, y, scale, rows };
+}
+function buildCurve(n, k, sigma, lam) {
+  const ps = pGrid(n, k);
+  const risks = ps.map(() => []);
+  const trains = ps.map(() => []);
+  const trials = [];
+  for (let t = 0; t < TRIALS; t++) {
+    const trial = oneTrial(
+      n, k, sigma, lam,
+      (drawSeed * 10007 + t + 1) * 97 + n * 13 + k * 3,
+      ps
+    );
+    trials.push(trial);
+    for (const row of trial.rows) {
+      const idx = ps.indexOf(row.p);
+      risks[idx].push(row.risk);
+      trains[idx].push(row.train);
+    }
+  }
+  const med = ps.map((p, i) => ({ p, risk: median(risks[i]), train: median(trains[i]) }))
+    .filter(row => Number.isFinite(row.risk) && Number.isFinite(row.train));
+  const atN = med.reduce((best, row) => Math.abs(row.p - n) < Math.abs(best.p - n) ? row : best, med[0]);
+  let chosen = trials[0];
+  let gap = Infinity;
+  for (const trial of trials) {
+    const row = trial.rows.find(r => r.p === atN.p);
+    if (!row) continue;
+    const d = Math.abs(row.risk - atN.risk);
+    if (d < gap) { gap = d; chosen = trial; }
+  }
+  return { med, chosen };
+}
+function buildSpot(chosen, n, k, sigma, lam) {
+  const d = chosen.X[0].length;
+  const rng = mulberry32(drawSeed * 100003 + n * 17 + k);
+  const nte = 72;
+  const Xte = Array.from({ length: nte }, () => Float64Array.from({ length: d }, () => gauss(rng)));
+  const signal = Float64Array.from({ length: nte }, (_, i) => {
+    let s = 0;
+    for (let j = 0; j < k; j++) s += Xte[i][j] * chosen.scale;
+    return s;
+  });
+  const known = new Map(chosen.rows.map(row => [row.p, row]));
+  const series = [];
+  for (let p = 1; p <= n * 3; p++) {
+    const cached = known.get(p);
+    if (cached) { series.push(cached); continue; }
+    const bhat = fit(prefix(chosen.X, p), chosen.y, lam);
+    if (!bhat) continue;
+    series.push({
+      p,
+      risk: paramRisk(bhat, p, k, chosen.scale, sigma),
+      train: trainMSE(prefix(chosen.X, p), chosen.y, bhat)
+    });
+  }
+  return { X: chosen.X, y: chosen.y, scale: chosen.scale, Xte, signal, series };
+}
+function evalDraw(spot, p, k, sigma, lam) {
+  const bhat = fit(prefix(spot.X, p), spot.y, lam);
+  if (!bhat) return null;
+  const preds = Float64Array.from({ length: spot.signal.length }, (_, i) => {
+    let s = 0;
+    const row = spot.Xte[i];
+    for (let j = 0; j < p; j++) s += row[j] * bhat[j];
+    return s;
+  });
+  let norm = 0;
+  for (let j = 0; j < bhat.length; j++) norm += bhat[j] * bhat[j];
+  return {
+    preds,
+    train: trainMSE(prefix(spot.X, p), spot.y, bhat),
+    risk: paramRisk(bhat, p, k, spot.scale, sigma),
+    norm: Math.sqrt(norm)
+  };
+}
+
+function el(tag, attrs, parent, content) {
+  const e = document.createElementNS(NS, tag);
+  for (const [key, value] of Object.entries(attrs)) e.setAttribute(key, value);
+  if (content !== undefined) e.textContent = content;
+  parent.append(e);
+  return e;
+}
+function chartBox(id, height) {
+  const svg = $(id);
+  const w = Math.max(280, Math.round(svg.clientWidth || 640));
+  svg.setAttribute('viewBox', `0 0 ${w} ${height}`);
+  svg.replaceChildren();
+  return { svg, w, h: height };
+}
+function niceLogTicks(ymin, ymax) {
+  const ticks = [];
+  const lo = Math.floor(Math.log10(ymin));
+  const hi = Math.ceil(Math.log10(ymax));
+  for (let e = lo; e <= hi; e++) {
+    for (const m of [1, 2, 5]) {
+      const v = m * 10 ** e;
+      if (v >= ymin * 0.98 && v <= ymax * 1.02) ticks.push(v);
+    }
+  }
+  return ticks.length ? ticks : [ymin, ymax];
+}
+function atCurve(p, log) {
+  if (!curve.length) return null;
+  if (p <= curve[0].p) return curve[0];
+  const last = curve[curve.length - 1];
+  if (p >= last.p) return last;
+  let i = 0;
+  while (i < curve.length - 1 && curve[i + 1].p < p) i++;
+  const a = curve[i];
+  const b = curve[i + 1];
+  const t = (p - a.p) / (b.p - a.p);
+  const mix = (u, v) => {
+    if (!log || u <= 0 || v <= 0) return u + t * (v - u);
+    return Math.exp(Math.log(u) + t * (Math.log(v) - Math.log(u)));
+  };
+  return { p, risk: mix(a.risk, b.risk), train: mix(a.train, b.train) };
+}
+function regimeCopy(p, n, k, train) {
+  const memorized = train < 0.02;
+  if (p === n) {
+    return memorized
+      ? 'Just enough parameters to hit every training point, including the noise. Test error spikes.'
+      : 'Ridge keeps the fit from copying the noise, so the spike is smaller.';
+  }
+  if (p > n) {
+    return memorized
+      ? 'Training error is already zero. A larger model finds a gentler fit, so test error falls.'
+      : 'Ridge is strong enough that the fit never memorizes the training set.';
+  }
+  if (p < k) return 'Part of the real pattern is still missing, so a larger model helps.';
+  if (p === k) return 'The model can see the whole pattern. This is the low point of the curve.';
+  return 'Extra parameters mostly fit noise, so test error rises toward the spike.';
+}
+
+function tickLabel(v) {
+  if (!Number.isFinite(v)) return '';
+  if (v >= 10) return String(Math.round(v));
+  if (v >= 1) return String(Math.round(v * 10) / 10);
+  return String(Math.round(v * 100) / 100);
+}
+function drawRisk(state, here, draw) {
+  const { svg, w, h } = chartBox('risk', 360);
+  const m = { l: 44, r: 16, t: 22, b: 32 };
+  const risks = curve.map(r => r.risk);
+  const peak = Math.max(...risks, here ? here.risk : 0, draw ? draw.risk : 0, state.sigma ** 2);
+  const testFloor = Math.min(...risks, state.sigma ** 2);
+  let ymin, ymax, yOf;
+  if (state.log) {
+    ymin = Math.max(0.08, testFloor * 0.8);
+    ymax = Math.max(peak * 1.35, ymin * 10);
+    const lo = Math.log10(ymin);
+    const hi = Math.log10(ymax);
+    const map = v => m.t + (1 - (Math.log10(Math.max(v, ymin)) - lo) / (hi - lo)) * (h - m.t - m.b);
+    yOf = v => Math.max(m.t, Math.min(h - m.b, map(v)));
+  } else {
+    ymin = 0;
+    ymax = peak * 1.08 || 1;
+    const map = v => m.t + (1 - Math.max(v, 0) / ymax) * (h - m.t - m.b);
+    yOf = v => Math.max(m.t, Math.min(h - m.b, map(v)));
+  }
+  const xOf = p => m.l + (p - 1) / (state.pMax - 1) * (w - m.l - m.r);
+  const candidates = state.log ? niceLogTicks(ymin, ymax) : [0, ymax / 2, ymax].filter(v => v >= ymin && v <= ymax);
+  const ticks = [];
+  for (const v of candidates) {
+    const y = yOf(v);
+    if (ticks.every(u => Math.abs(yOf(u) - y) > 22)) ticks.push(v);
+  }
+  for (const v of ticks) {
+    const y = yOf(v);
+    el('line', { x1: m.l, x2: w - m.r, y1: y, y2: y, stroke: '#f3f3f3' }, svg);
+    el('text', { x: m.l - 8, y: y + 4, 'text-anchor': 'end' }, svg, tickLabel(v));
+  }
+  const yNoise = yOf(state.sigma ** 2);
+  if (state.sigma ** 2 >= ymin) {
+    el('line', { x1: m.l, x2: w - m.r, y1: yNoise, y2: yNoise, stroke: '#bbb', 'stroke-dasharray': '4 4' }, svg);
+  }
+  el('line', { x1: xOf(state.k), x2: xOf(state.k), y1: m.t, y2: h - m.b, stroke: '#e6e6e6' }, svg);
+  if (Math.abs(xOf(state.k) - xOf(state.n)) > 28) {
+    el('text', { x: Math.min(xOf(state.k) + 4, w - m.r - 12), y: 12 }, svg, 'k');
+  }
+  el('line', { x1: xOf(state.n), x2: xOf(state.n), y1: m.t, y2: h - m.b, stroke: '#c8c8c8' }, svg);
+  el('text', { x: Math.min(xOf(state.n) + 4, w - m.r - 28), y: 12 }, svg, 'p = n');
+
+  const poly = (rows, key, color, width, dash, stopAtFloor) => {
+    if (!rows.length) return;
+    const pts = [];
+    for (const r of rows) {
+      const v = r[key];
+      const clamped = state.log ? Math.max(v, ymin) : Math.max(v, 0);
+      pts.push(`${xOf(r.p)},${yOf(clamped)}`);
+      if (stopAtFloor && state.log && v <= ymin) break;
+    }
+    el('polyline', {
+      points: pts.join(' '), fill: 'none', stroke: color, 'stroke-width': width,
+      'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash
+    }, svg);
+  };
+  poly(spotSeries, 'risk', '#508cdc', 1.5, '', false);
+  poly(curve, 'risk', '#1a1a1a', 2.25, '', false);
+
+  const x = xOf(state.p);
+  el('line', { x1: x, x2: x, y1: m.t, y2: h - m.b, stroke: '#ddd' }, svg);
+  if (here) el('circle', { cx: x, cy: yOf(Math.max(here.risk, state.log ? ymin : 0)), r: 4.5, fill: '#1a1a1a' }, svg);
+  if (draw) el('circle', { cx: x, cy: yOf(Math.max(draw.risk, state.log ? ymin : 0)), r: 4, fill: '#fff', stroke: '#508cdc', 'stroke-width': 2 }, svg);
+  for (const p of [1, state.n, state.pMax]) {
+    el('text', { x: xOf(p), y: h - 12, 'text-anchor': p === state.pMax ? 'end' : p === 1 ? 'start' : 'middle' }, svg, String(p));
+  }
+  svg.setAttribute('aria-label', here
+    ? `Typical test error ${fmt(here.risk)} at model size ${state.p}. The spike is at ${state.n}.`
+    : 'Test error versus model size');
+}
+function drawPred(state, draw) {
+  const { svg, w, h } = chartBox('pred', 360);
+  const m = { l: 42, r: 12, t: 16, b: 36 };
+  const xOf = v => m.l + (v + LIM) / (2 * LIM) * (w - m.l - m.r);
+  const yOf = v => m.t + (1 - (v + LIM) / (2 * LIM)) * (h - m.t - m.b);
+  for (const v of [-3, -1.5, 0, 1.5, 3]) {
+    el('line', { x1: m.l, x2: w - m.r, y1: yOf(v), y2: yOf(v), stroke: '#f3f3f3' }, svg);
+    el('line', { x1: xOf(v), x2: xOf(v), y1: m.t, y2: h - m.b, stroke: '#f3f3f3' }, svg);
+    el('text', { x: m.l - 6, y: yOf(v) + 4, 'text-anchor': 'end' }, svg, String(v));
+  }
+  el('line', {
+    x1: xOf(-LIM), y1: yOf(-LIM), x2: xOf(LIM), y2: yOf(LIM),
+    stroke: '#ccc', 'stroke-dasharray': '5 4'
+  }, svg);
+  let outside = 0;
+  if (draw) {
+    for (let i = 0; i < draw.preds.length; i++) {
+      const truth = spot.signal[i];
+      const pred = draw.preds[i];
+      const off = Math.abs(truth) > LIM || Math.abs(pred) > LIM;
+      if (off) outside++;
+      const cx = xOf(Math.max(-LIM, Math.min(LIM, truth)));
+      const cy = yOf(Math.max(-LIM, Math.min(LIM, pred)));
+      el('circle', off
+        ? { cx, cy, r: 3, fill: 'none', stroke: '#bbb', 'stroke-width': 1.25 }
+        : { cx, cy, r: 3, fill: '#1a1a1a' }, svg);
+    }
+  }
+  const note = outside
+    ? `Across: true answer. Up: the model’s guess. ${outside} guesses are off this chart.`
+    : 'Across: true answer. Up: the model’s guess. On the dashed line, the pattern was recovered.';
+  $('pred-note').textContent = note;
+  svg.setAttribute('aria-label', note);
+}
+
+function render() {
+  const state = read();
+  $('val-p').textContent = String(state.p);
+  $('val-n').textContent = String(state.n);
+  $('val-k').textContent = String(state.k);
+  $('val-sig').textContent = state.sigma.toFixed(2);
+  $('val-lam').textContent = formatLam(state.lam);
+  const here = atCurve(state.p, state.log);
+  const draw = spot ? evalDraw(spot, state.p, state.k, state.sigma, state.lam) : null;
+  drawRisk(state, here, draw);
+  drawPred(state, draw);
+  const name = state.p < state.n ? 'Before the spike' : state.p === state.n ? 'At the spike' : 'After the spike';
+  $('stats').innerHTML = `
+    <span>${name}</span>
+    <span>Test error <strong>${here ? fmt(here.risk) : '—'}</strong></span>
+    <span>Train error <strong>${here ? fmt(here.train) : '—'}</strong></span>
+    <span>This sample <strong>${draw ? fmt(draw.risk) : '—'}</strong></span>
+    <span>Fit size <strong>${draw ? fmt(draw.norm) : '—'}</strong></span>
+    <span>p / n <strong>${(state.p / state.n).toFixed(2)}</strong></span>`;
+  $('regime').textContent = regimeCopy(state.p, state.n, state.k, here ? here.train : 1);
+}
+function rebuild() {
+  const state = read();
+  const built = buildCurve(state.n, state.k, state.sigma, state.lam);
+  curve = built.med;
+  spot = buildSpot(built.chosen, state.n, state.k, state.sigma, state.lam);
+  spotSeries = spot.series;
+  render();
+}
+
+for (const id of ['sl-n', 'sl-k', 'sl-sig', 'sl-lam']) $(id).addEventListener('input', rebuild);
+$('sl-p').addEventListener('input', render);
+$('tog-log').addEventListener('change', render);
+$('btn-sample').addEventListener('click', () => { drawSeed++; rebuild(); });
+window.addEventListener('resize', render);
+rebuild();
+</script>
+</body>
+</html>
