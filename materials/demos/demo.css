@@ -143,9 +143,20 @@ input[type="range"],
   border-radius: 0;
 }
 
-.panel-label {
+.panel-label,
+.method-label {
   text-align: left;
   font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+
+.method-panel canvas,
+canvas {
+  border-color: #ccc;
+  border-radius: 0;
 }
 
 svg text {
