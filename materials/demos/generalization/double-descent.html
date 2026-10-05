@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Double descent — 6.7960</title>
   <style>
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Lato, Verdana, Helvetica, -apple-system, sans-serif;
@@ -67,7 +68,7 @@
       button, .toggle, summary, .site-nav a, .pager a { min-height: 44px; }
       .ctrl-row input[type=range] { min-height: 40px; }
     }
-  </style>
+    </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   <link rel="stylesheet" href="../demo.css">
   <script src="../demo.js"></script>
@@ -77,20 +78,17 @@
 <div class="page">
   <nav class="site-nav" aria-label="Demos">
     <a href="../index.html">All demos</a>
+    <a href="double-descent.html" aria-current="page">01 Double descent</a>
+    <a href="ar-extrapolation.html">02 Autoregressive extrapolation</a>
   </nav>
   <h1>Double descent</h1>
-  <p class="subtitle">A linear model, one weight per input. Test error falls as the width grows, spikes when the model can fit every training point, then falls again.</p>
+  <p class="subtitle">Test error falls as the model grows, spikes when it can exactly fit every training point, then falls again — double descent.</p>
 
   <div class="controls">
     <div class="ctrl-row">
       <label for="sl-p">Model width w</label>
-      <input id="sl-p" type="range" min="1" max="96" step="1" value="32">
+      <input id="sl-p" type="range" min="1" max="192" step="1" value="32">
       <output class="val" id="val-p" for="sl-p">32</output>
-    </div>
-    <div class="ctrl-row">
-      <label for="sl-n">Training points n</label>
-      <input id="sl-n" type="range" min="20" max="48" step="1" value="32">
-      <output class="val" id="val-n" for="sl-n">32</output>
     </div>
     <div class="ctrl-row">
       <label for="sl-lam">Weight decay</label>
@@ -99,47 +97,35 @@
     </div>
   </div>
 
-  <div class="training-toolbar">
-    <div class="btn-row">
-      <button id="btn-sample" class="btn-ghost" type="button">Resample</button>
-    </div>
-  </div>
-
   <div class="legend">
-    <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>median test error</span>
-    <span class="leg"><span class="swatch" style="background:#1772d0"></span>this training set</span>
-    <label class="toggle"><input id="tog-log" type="checkbox" checked> log scale</label>
+    <span class="leg"><span class="swatch" style="background:#1a1a1a"></span>test error</span>
+    <span class="leg"><svg width="24" height="10" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0"><line x1="0" y1="5" x2="24" y2="5" stroke="#aaa" stroke-width="2.5" stroke-dasharray="4 3"/></svg>train error</span>
   </div>
 
   <div class="plots">
     <figure>
       <svg id="risk" class="plot" role="img" aria-label="Test error versus model width"></svg>
-      <figcaption class="caption">The spike is where model width equals the number of training points, w = n. Training error hits zero there.</figcaption>
+      <figcaption id="risk-caption" class="caption">The spike is where model width equals the number of training points, w = n.</figcaption>
     </figure>
     <figure>
-      <svg id="pred" class="plot" role="img" aria-label="Predicted label versus true label"></svg>
-      <figcaption class="caption" id="pred-note"></figcaption>
+      <svg id="pred" class="plot" role="img" aria-label="Model fit and training points"></svg>
     </figure>
   </div>
 
   <div class="stats" id="stats" aria-live="polite"></div>
   <p class="regime" id="regime"></p>
-
 </div>
 <script>
 'use strict';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
-const TRIALS = 21;
-const LIM = 3.4;
-const SIGNAL = 4;
-const NOISE = 0.8;
-
-let drawSeed = 1;
-let curve = [];
-let spot = null;
-let spotSeries = [];
+const N_TRAIN = 32;
+const P_MAX = 6 * N_TRAIN;
+const NOISE = 0.2;
+const FREQ_SCALE = 40;
+const FEATURE_SEED = 7919, DATA_SEED = 1;
+const SCATTER_YMIN = -2, SCATTER_YMAX = 2;
 
 function mulberry32(a) {
   return function () {
@@ -155,126 +141,103 @@ function gauss(rng) {
   if (u < 1e-12) u = 1e-12;
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
 }
-function solve(A, b) {
-  const n = b.length;
-  const M = new Array(n);
-  for (let i = 0; i < n; i++) {
-    const row = new Float64Array(n + 1);
-    const Ai = A[i];
-    for (let j = 0; j < n; j++) row[j] = Ai[j];
-    row[n] = b[i];
-    M[i] = row;
+
+// ── True function & random Fourier features ──────────────────────────────────
+function trueSignal(x) { return Math.sin(Math.PI * x); }
+
+// One random featurization, drawn once and held fixed: phi_j(x) = cos(omega_j x + b_j),
+// with omega_j ~ N(0, FREQ_SCALE^2) and b_j ~ U[0, 2pi], all iid.
+// A model of width w uses the first w features, phi_1 .. phi_w.
+const OMEGAS = new Float64Array(P_MAX), BIASES = new Float64Array(P_MAX);
+{
+  const rng = mulberry32(FEATURE_SEED);
+  for (let j = 0; j < P_MAX; j++) {
+    OMEGAS[j] = gauss(rng) * FREQ_SCALE;
+    BIASES[j] = rng() * 2 * Math.PI;
   }
-  for (let c = 0; c < n; c++) {
-    let piv = c, best = Math.abs(M[c][c]);
-    for (let r = c + 1; r < n; r++) {
-      const v = Math.abs(M[r][c]);
-      if (v > best) { best = v; piv = r; }
-    }
-    if (best < 1e-12) return null;
-    if (piv !== c) { const t = M[c]; M[c] = M[piv]; M[piv] = t; }
-    const rowc = M[c];
-    const div = rowc[c];
-    for (let j = c; j <= n; j++) rowc[j] /= div;
-    for (let r = 0; r < n; r++) {
-      if (r === c) continue;
-      const f = M[r][c];
-      if (f === 0) continue;
-      const row = M[r];
-      for (let j = c; j <= n; j++) row[j] -= f * rowc[j];
-    }
-  }
-  const x = new Float64Array(n);
-  for (let i = 0; i < n; i++) x[i] = M[i][n];
-  return x;
 }
-function fit(X, y, lam) {
-  const n = X.length;
-  const p = X[0].length;
-  const reg = Math.max(n * lam, 1e-8);
-  if (p <= n) {
-    const G = Array.from({ length: p }, () => new Float64Array(p));
-    const rhs = new Float64Array(p);
-    for (let i = 0; i < n; i++) {
-      const Xi = X[i];
-      for (let a = 0; a < p; a++) {
-        rhs[a] += Xi[a] * y[i];
-        const Xia = Xi[a];
-        for (let b = a; b < p; b++) G[a][b] += Xia * Xi[b];
-      }
-    }
-    const G2 = Array.from({ length: p }, (_, a) => {
-      const row = new Float64Array(p);
-      for (let b = 0; b < p; b++) row[b] = b < a ? G[b][a] : G[a][b];
-      row[a] += reg;
-      return row;
-    });
-    return solve(G2, rhs);
-  }
-  const K = Array.from({ length: n }, () => new Float64Array(n));
-  for (let i = 0; i < n; i++) {
-    const Xi = X[i];
-    for (let j = i; j < n; j++) {
-      let s = 0;
-      const Xj = X[j];
-      for (let a = 0; a < p; a++) s += Xi[a] * Xj[a];
-      K[i][j] = s;
-      if (i !== j) K[j][i] = s;
-    }
-  }
-  for (let i = 0; i < n; i++) K[i][i] += reg;
-  const alpha = solve(K, y);
-  if (!alpha) return null;
-  const beta = new Float64Array(p);
-  for (let a = 0; a < p; a++) {
-    let s = 0;
-    for (let i = 0; i < n; i++) s += X[i][a] * alpha[i];
-    beta[a] = s;
-  }
-  return beta;
+function features(x) {
+  const phi = new Float64Array(P_MAX);
+  for (let j = 0; j < P_MAX; j++) phi[j] = Math.cos(OMEGAS[j] * x + BIASES[j]);
+  return phi;
 }
-function prefix(X, p) {
-  return X.map(row => row.subarray(0, p));
-}
-function trainMSE(X, y, bhat) {
-  const n = y.length;
-  const p = bhat.length;
+function predict(bhat, phi) {
   let s = 0;
-  for (let i = 0; i < n; i++) {
-    let pred = 0;
-    const Xi = X[i];
-    for (let j = 0; j < p; j++) pred += Xi[j] * bhat[j];
-    const e = pred - y[i];
-    s += e * e;
+  for (let j = 0; j < bhat.length; j++) s += phi[j] * bhat[j];
+  return s;
+}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+// Training inputs sit on a jittered grid so no two nearly coincide: exactly fitting
+// two almost-identical x with different noisy labels blows up any interpolant.
+const TRAIN = (() => {
+  const rng = mulberry32(DATA_SEED);
+  const n = N_TRAIN;
+  const xs = Float64Array.from({ length: n }, (_, i) => -1 + 2 * (i + 0.5 + (rng() - 0.5) * 0.5) / n);
+  const ys = Float64Array.from(xs, x => trueSignal(x) + gauss(rng) * NOISE);
+  return { xs, ys, X: Array.from(xs, features) };
+})();
+const TEST_X = Float64Array.from({ length: 200 }, (_, i) => -1 + 2 * i / 199);
+const TEST_PHI = Array.from(TEST_X, features);
+
+// ── Fitting ──────────────────────────────────────────────────────────────────
+// Ridge regression via the kernel K = X X^T (n x n), valid for every width:
+//   beta = X^T (K + n lam I)^+ y.
+// At lam = 0 this is least squares for w < n and the min-norm interpolant for w > n.
+// K's eigendecomposition depends only on w, so it is computed once per width.
+function eigSym(A) {
+  const n = A.length;
+  const a = A.map(r => Float64Array.from(r));
+  const V = Array.from({ length: n }, (_, i) => { const r = new Float64Array(n); r[i] = 1; return r; });
+  for (let sweep = 0; sweep < 60; sweep++) {
+    let off = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i][j] ** 2;
+    if (off < 1e-30) break;
+    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+      if (Math.abs(a[p][q]) < 1e-300) continue;
+      const th = (a[q][q] - a[p][p]) / (2 * a[p][q]);
+      const t = Math.sign(th || 1) / (Math.abs(th) + Math.sqrt(th * th + 1));
+      const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+      for (let k = 0; k < n; k++) { const u = a[k][p], v = a[k][q]; a[k][p] = c * u - s * v; a[k][q] = s * u + c * v; }
+      for (let k = 0; k < n; k++) { const u = a[p][k], v = a[q][k]; a[p][k] = c * u - s * v; a[q][k] = s * u + c * v; }
+      for (let k = 0; k < n; k++) { const u = V[k][p], v = V[k][q]; V[k][p] = c * u - s * v; V[k][q] = s * u + c * v; }
+    }
   }
-  return s / n;
+  return { vals: a.map((r, i) => r[i]), V };
 }
-function paramRisk(bhat, p, k, scale, sigma) {
-  let ex = 0;
-  const m = Math.max(p, k);
-  for (let j = 0; j < m; j++) {
-    const est = j < p ? bhat[j] : 0;
-    const truth = j < k ? scale : 0;
-    const e = est - truth;
-    ex += e * e;
+const EIGS = (() => {
+  const { X, ys } = TRAIN, n = N_TRAIN;
+  const K = Array.from({ length: n }, () => new Float64Array(n));
+  const eigs = [null];
+  for (let p = 1; p <= P_MAX; p++) {
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) K[i][j] += X[i][p - 1] * X[j][p - 1];
+    const { vals, V } = eigSym(K);
+    const vy = vals.map((_, k) => { let s = 0; for (let i = 0; i < n; i++) s += V[i][k] * ys[i]; return s; });
+    eigs.push({ vals, V, vy, max: Math.max(...vals) });
   }
-  return ex + sigma * sigma;
-}
-function median(a) {
-  if (!a.length) return NaN;
-  const b = a.slice().sort((x, y) => x - y);
-  return b[b.length >> 1];
-}
-function pGrid(n, k) {
-  const P = n * 3;
-  const set = new Set([1, n, Math.min(Math.max(k, 1), P)]);
-  for (let i = 0; i <= 28; i++) set.add(Math.max(1, Math.min(P, Math.round(1 + (P - 1) * (i / 28)))));
-  for (let d = -6; d <= 8; d++) {
-    const p = n + d;
-    if (p >= 1 && p <= P) set.add(p);
+  return eigs;
+})();
+function fitWidth(p, lam) {
+  const { X, ys } = TRAIN, n = N_TRAIN;
+  const { vals, V, vy, max } = EIGS[p];
+  const alpha = new Float64Array(n);
+  for (let k = 0; k < n; k++) {
+    if (vals[k] <= 1e-15 * max) continue;  // numerically zero: K has rank min(w, n)
+    const c = vy[k] / (vals[k] + n * lam);
+    for (let i = 0; i < n; i++) alpha[i] += V[i][k] * c;
   }
-  return [...set].sort((a, b) => a - b);
+  const bhat = new Float64Array(p);
+  for (let j = 0; j < p; j++) { let s = 0; for (let i = 0; i < n; i++) s += X[i][j] * alpha[i]; bhat[j] = s; }
+  let train = 0, risk = 0, norm = 0;
+  for (let i = 0; i < n; i++) train += (predict(bhat, X[i]) - ys[i]) ** 2;
+  for (let i = 0; i < TEST_X.length; i++) risk += (predict(bhat, TEST_PHI[i]) - trueSignal(TEST_X[i])) ** 2;
+  for (const v of bhat) norm += v * v;
+  return { p, bhat, train: train / n, risk: risk / TEST_X.length, norm: Math.sqrt(norm) };
 }
+
+let results = [];  // results[w] for w = 1 .. P_MAX
+let curve = [];
+
 function lamOf(slider) {
   const v = Number(slider);
   if (v <= 0) return 0;
@@ -294,112 +257,8 @@ function fmt(v) {
   return v.toFixed(2);
 }
 function read() {
-  const n = +$('sl-n').value;
   const lam = lamOf(+$('sl-lam').value);
-  const sl = $('sl-p');
-  const pMax = n * 3;
-  sl.max = String(pMax);
-  if (+sl.value > pMax) sl.value = String(pMax);
-  return { n, k: SIGNAL, sigma: NOISE, lam, p: +sl.value, pMax, log: $('tog-log').checked };
-}
-
-function oneTrial(n, k, sigma, lam, seed, ps) {
-  const P = n * 3;
-  const d = Math.max(P, k);
-  const scale = 1 / Math.sqrt(k);
-  const rng = mulberry32(seed);
-  const X = Array.from({ length: n }, () => Float64Array.from({ length: d }, () => gauss(rng)));
-  const y = new Float64Array(n);
-  for (let i = 0; i < n; i++) {
-    let s = 0;
-    for (let j = 0; j < k; j++) s += X[i][j] * scale;
-    y[i] = s + gauss(rng) * sigma;
-  }
-  const rows = [];
-  for (const p of ps) {
-    const bhat = fit(prefix(X, p), y, lam);
-    if (!bhat) continue;
-    rows.push({
-      p,
-      risk: paramRisk(bhat, p, k, scale, sigma),
-      train: trainMSE(prefix(X, p), y, bhat)
-    });
-  }
-  return { X, y, scale, rows };
-}
-function buildCurve(n, k, sigma, lam) {
-  const ps = pGrid(n, k);
-  const risks = ps.map(() => []);
-  const trains = ps.map(() => []);
-  const trials = [];
-  for (let t = 0; t < TRIALS; t++) {
-    const trial = oneTrial(
-      n, k, sigma, lam,
-      (drawSeed * 10007 + t + 1) * 97 + n * 13 + k * 3,
-      ps
-    );
-    trials.push(trial);
-    for (const row of trial.rows) {
-      const idx = ps.indexOf(row.p);
-      risks[idx].push(row.risk);
-      trains[idx].push(row.train);
-    }
-  }
-  const med = ps.map((p, i) => ({ p, risk: median(risks[i]), train: median(trains[i]) }))
-    .filter(row => Number.isFinite(row.risk) && Number.isFinite(row.train));
-  const atN = med.reduce((best, row) => Math.abs(row.p - n) < Math.abs(best.p - n) ? row : best, med[0]);
-  let chosen = trials[0];
-  let gap = Infinity;
-  for (const trial of trials) {
-    const row = trial.rows.find(r => r.p === atN.p);
-    if (!row) continue;
-    const d = Math.abs(row.risk - atN.risk);
-    if (d < gap) { gap = d; chosen = trial; }
-  }
-  return { med, chosen };
-}
-function buildSpot(chosen, n, k, sigma, lam) {
-  const d = chosen.X[0].length;
-  const rng = mulberry32(drawSeed * 100003 + n * 17 + k);
-  const nte = 72;
-  const Xte = Array.from({ length: nte }, () => Float64Array.from({ length: d }, () => gauss(rng)));
-  const signal = Float64Array.from({ length: nte }, (_, i) => {
-    let s = 0;
-    for (let j = 0; j < k; j++) s += Xte[i][j] * chosen.scale;
-    return s;
-  });
-  const known = new Map(chosen.rows.map(row => [row.p, row]));
-  const series = [];
-  for (let p = 1; p <= n * 3; p++) {
-    const cached = known.get(p);
-    if (cached) { series.push(cached); continue; }
-    const bhat = fit(prefix(chosen.X, p), chosen.y, lam);
-    if (!bhat) continue;
-    series.push({
-      p,
-      risk: paramRisk(bhat, p, k, chosen.scale, sigma),
-      train: trainMSE(prefix(chosen.X, p), chosen.y, bhat)
-    });
-  }
-  return { X: chosen.X, y: chosen.y, scale: chosen.scale, Xte, signal, series };
-}
-function evalDraw(spot, p, k, sigma, lam) {
-  const bhat = fit(prefix(spot.X, p), spot.y, lam);
-  if (!bhat) return null;
-  const preds = Float64Array.from({ length: spot.signal.length }, (_, i) => {
-    let s = 0;
-    const row = spot.Xte[i];
-    for (let j = 0; j < p; j++) s += row[j] * bhat[j];
-    return s;
-  });
-  let norm = 0;
-  for (let j = 0; j < bhat.length; j++) norm += bhat[j] * bhat[j];
-  return {
-    preds,
-    train: trainMSE(prefix(spot.X, p), spot.y, bhat),
-    risk: paramRisk(bhat, p, k, spot.scale, sigma),
-    norm: Math.sqrt(norm)
-  };
+  return { n: N_TRAIN, sigma: NOISE, lam, p: +$('sl-p').value, pMax: P_MAX, interpP: N_TRAIN };
 }
 
 function el(tag, attrs, parent, content) {
@@ -428,35 +287,17 @@ function niceLogTicks(ymin, ymax) {
   }
   return ticks.length ? ticks : [ymin, ymax];
 }
-function atCurve(p, log) {
-  if (!curve.length) return null;
-  if (p <= curve[0].p) return curve[0];
-  const last = curve[curve.length - 1];
-  if (p >= last.p) return last;
-  let i = 0;
-  while (i < curve.length - 1 && curve[i + 1].p < p) i++;
-  const a = curve[i];
-  const b = curve[i + 1];
-  const t = (p - a.p) / (b.p - a.p);
-  const mix = (u, v) => {
-    if (!log || u <= 0 || v <= 0) return u + t * (v - u);
-    return Math.exp(Math.log(u) + t * (Math.log(v) - Math.log(u)));
-  };
-  return { p, risk: mix(a.risk, b.risk), train: mix(a.train, b.train) };
-}
-function regimeCopy(w, n, train) {
+function regimeCopy(w, interpP, train) {
   const memorized = train < 0.02;
-  if (w === n) {
+  if (w === interpP) {
     return memorized
-      ? 'Width equals the number of training points, so the line can pass through every one. Test error spikes.'
-      : 'Weight decay keeps the line from passing through every training point, so the spike is smaller.';
+      ? 'Width equals the interpolation threshold: the model can pass through every training point. Test error spikes.'
+      : 'Weight decay keeps the model from passing through every training point, so the spike is smaller.';
   }
-  if (w > n) {
-    return memorized
-      ? 'Training error is already zero. A wider model finds smaller weights, so test error falls.'
-      : 'Weight decay is strong enough that training error never hits zero.';
+  if (w > interpP) {
+    return memorized ? '' : 'Weight decay is strong enough that training error never hits zero.';
   }
-  return 'Fewer weights than training points, so the line cannot pass through every one yet.';
+  return 'Fewer effective parameters than training points, so the model cannot pass through every one yet.';
 }
 
 function tickLabel(v) {
@@ -473,30 +314,23 @@ function axisName(svg, x, y, text, rotate) {
   const g = el('g', { transform: `translate(${x} ${y}) rotate(${rotate})` }, svg);
   el('text', { x: 0, y: 0, class: 'axis-name', 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, g, text);
 }
-function drawRisk(state, here, draw) {
+function drawRisk(state, here) {
   const { svg, w, h } = chartBox('risk', 380);
   const m = { l: 72, r: 18, t: 28, b: 52 };
-  const risks = curve.map(r => r.risk);
-  const peak = Math.max(...risks, here ? here.risk : 0, draw ? draw.risk : 0, state.sigma ** 2);
-  const testFloor = Math.min(...risks, state.sigma ** 2);
-  let ymin, ymax, yOf;
-  if (state.log) {
-    ymin = Math.max(0.08, testFloor * 0.8);
-    ymax = Math.max(peak * 1.35, ymin * 10);
-    const lo = Math.log10(ymin);
-    const hi = Math.log10(ymax);
-    const map = v => m.t + (1 - (Math.log10(Math.max(v, ymin)) - lo) / (hi - lo)) * (h - m.t - m.b);
-    yOf = v => Math.max(m.t, Math.min(h - m.b, map(v)));
-  } else {
-    ymin = 0;
-    ymax = peak * 1.08 || 1;
-    const map = v => m.t + (1 - Math.max(v, 0) / ymax) * (h - m.t - m.b);
-    yOf = v => Math.max(m.t, Math.min(h - m.b, map(v)));
-  }
+  const risks = curve.map(r => r.risk).filter(v => v > 0);
+  const trains = curve.map(r => r.train).filter(v => v > 0);
+  const peak = Math.max(...risks, here ? here.risk : 0, state.sigma ** 2);
+  const testFloor = risks.length ? Math.min(...risks) : state.sigma ** 2;
+  const trainMin = trains.length ? Math.min(...trains) : 1e-4;
+  const ymin = Math.max(1e-4, Math.min(testFloor, trainMin) * 0.4);
+  const ymax = Math.max(peak * 1.35, ymin * 10);
+  const lo = Math.log10(ymin), hi = Math.log10(ymax);
+  const map = v => m.t + (1 - (Math.log10(Math.max(v, ymin)) - lo) / (hi - lo)) * (h - m.t - m.b);
+  const yOf = v => Math.max(m.t, Math.min(h - m.b, map(v)));
   const xOf = p => m.l + (p - 1) / (state.pMax - 1) * (w - m.l - m.r);
-  const candidates = state.log ? niceLogTicks(ymin, ymax) : [0, ymax / 2, ymax].filter(v => v >= ymin && v <= ymax);
+
   const ticks = [];
-  for (const v of candidates) {
+  for (const v of niceLogTicks(ymin, ymax)) {
     const y = yOf(v);
     if (ticks.every(u => Math.abs(yOf(u) - y) > 22)) ticks.push(v);
   }
@@ -505,108 +339,118 @@ function drawRisk(state, here, draw) {
     el('line', { x1: m.l, x2: w - m.r, y1: y, y2: y, stroke: '#f3f3f3' }, svg);
     el('text', { x: m.l - 8, y: y + 4, 'text-anchor': 'end' }, svg, tickLabel(v));
   }
-  el('line', { x1: xOf(state.n), x2: xOf(state.n), y1: m.t, y2: h - m.b, stroke: '#c8c8c8' }, svg);
-  el('text', { x: Math.min(xOf(state.n) + 6, w - m.r - 36), y: 16, class: 'axis-name' }, svg, 'w = n');
+  const iP = state.interpP;
+  el('line', { x1: xOf(iP), x2: xOf(iP), y1: m.t, y2: h - m.b, stroke: '#c8c8c8' }, svg);
+  el('text', { x: Math.min(xOf(iP) + 6, w - m.r - 36), y: 16, class: 'axis-name' }, svg, 'w = n');
 
-  const poly = (rows, key, color, width, dash, stopAtFloor) => {
+  const poly = (rows, key, color, width, dash) => {
     if (!rows.length) return;
     const pts = [];
-    for (const r of rows) {
-      const v = r[key];
-      const clamped = state.log ? Math.max(v, ymin) : Math.max(v, 0);
-      pts.push(`${xOf(r.p)},${yOf(clamped)}`);
-      if (stopAtFloor && state.log && v <= ymin) break;
-    }
-    el('polyline', {
-      points: pts.join(' '), fill: 'none', stroke: color, 'stroke-width': width,
-      'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash
-    }, svg);
+    for (const r of rows) pts.push(`${xOf(r.p)},${yOf(Math.max(r[key], ymin))}`);
+    el('polyline', { points: pts.join(' '), fill: 'none', stroke: color, 'stroke-width': width,
+      'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash }, svg);
   };
-  poly(spotSeries, 'risk', '#1772d0', 1.5, '', false);
-  poly(curve, 'risk', '#1a1a1a', 2.25, '', false);
+  poly(curve, 'train', '#aaa', 1.5, '4 3');
+  poly(curve, 'risk', '#1a1a1a', 2.25, '');
 
   const x = xOf(state.p);
   el('line', { x1: x, x2: x, y1: m.t, y2: h - m.b, stroke: '#ddd' }, svg);
-  if (here) el('circle', { cx: x, cy: yOf(Math.max(here.risk, state.log ? ymin : 0)), r: 4.5, fill: '#1a1a1a' }, svg);
-  if (draw) el('circle', { cx: x, cy: yOf(Math.max(draw.risk, state.log ? ymin : 0)), r: 4, fill: '#fff', stroke: '#1772d0', 'stroke-width': 2 }, svg);
-  for (const p of [1, state.n, state.pMax]) {
+  if (here) el('circle', { cx: x, cy: yOf(Math.max(here.risk, ymin)), r: 4.5, fill: '#1a1a1a' }, svg);
+  for (const p of [1, iP, state.pMax]) {
     el('text', { x: xOf(p), y: h - 30, 'text-anchor': p === state.pMax ? 'end' : p === 1 ? 'start' : 'middle' }, svg, String(p));
   }
-  axisName(svg, 18, (m.t + h - m.b) / 2, 'test error', -90);
+  axisName(svg, 18, (m.t + h - m.b) / 2, 'error', -90);
   axisName(svg, (m.l + w - m.r) / 2, h - 8, 'model width w');
   svg.setAttribute('aria-label', here
-    ? `Median test error ${fmt(here.risk)} at model width ${state.p}. The spike is at width ${state.n}.`
-    : 'Test error versus model width');
+    ? `Test error ${fmt(here.risk)} at model width ${state.p}.`
+    : 'Error versus model width');
 }
-function drawPred(state, draw) {
+
+function drawPred(state) {
   const { svg, w, h } = chartBox('pred', 380);
-  const m = { l: 78, r: 16, t: 16, b: 52 };
-  const xOf = v => m.l + (v + LIM) / (2 * LIM) * (w - m.l - m.r);
-  const yOf = v => m.t + (1 - (v + LIM) / (2 * LIM)) * (h - m.t - m.b);
-  for (const v of [-3, -1.5, 0, 1.5, 3]) {
-    el('line', { x1: m.l, x2: w - m.r, y1: yOf(v), y2: yOf(v), stroke: '#f3f3f3' }, svg);
-    el('line', { x1: xOf(v), x2: xOf(v), y1: m.t, y2: h - m.b, stroke: '#f3f3f3' }, svg);
-    el('text', { x: m.l - 6, y: yOf(v) + 4, 'text-anchor': 'end' }, svg, String(v));
+  const m = { l: 48, r: 16, t: 16, b: 52 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const xOf = x => m.l + (x + 1) / 2 * pw;
+  const yOf = y => m.t + (1 - (y - SCATTER_YMIN) / (SCATTER_YMAX - SCATTER_YMIN)) * ph;
+  const inRange = y => y >= SCATTER_YMIN && y <= SCATTER_YMAX;
+
+  for (const v of [SCATTER_YMIN, -1, 0, 1, SCATTER_YMAX]) {
+    const yy = yOf(v);
+    el('line', { x1: m.l, x2: w - m.r, y1: yy, y2: yy, stroke: '#f3f3f3' }, svg);
+    el('text', { x: m.l - 6, y: yy + 4, 'text-anchor': 'end' }, svg, String(v));
   }
-  el('line', {
-    x1: xOf(-LIM), y1: yOf(-LIM), x2: xOf(LIM), y2: yOf(LIM),
-    stroke: '#ccc', 'stroke-dasharray': '5 4'
-  }, svg);
-  let outside = 0;
+
+  // True function (gray dashed)
+  const N = 200;
+  const truePts = Array.from({length: N}, (_, i) => {
+    const x = -1 + 2 * i / (N - 1);
+    return `${xOf(x)},${yOf(trueSignal(x))}`;
+  });
+  el('polyline', { points: truePts.join(' '), fill: 'none', stroke: '#ccc',
+    'stroke-width': 1.5, 'stroke-dasharray': '4 3' }, svg);
+
+  // Model fit (solid dark), broken when out of chart range.
+  // Include training x-positions in the grid so the curve visually passes through training dots.
+  const draw = results[state.p];
   if (draw) {
-    for (let i = 0; i < draw.preds.length; i++) {
-      const truth = spot.signal[i];
-      const pred = draw.preds[i];
-      const off = Math.abs(truth) > LIM || Math.abs(pred) > LIM;
-      if (off) outside++;
-      const cx = xOf(Math.max(-LIM, Math.min(LIM, truth)));
-      const cy = yOf(Math.max(-LIM, Math.min(LIM, pred)));
-      el('circle', off
-        ? { cx, cy, r: 3, fill: 'none', stroke: '#bbb', 'stroke-width': 1.25 }
-        : { cx, cy, r: 3, fill: '#1a1a1a' }, svg);
+    const xs = Array.from({length: N}, (_, i) => -1 + 2 * i / (N - 1));
+    for (const tx of TRAIN.xs) xs.push(tx);
+    xs.sort((a, b) => a - b);
+    let path = '', pen = false;
+    for (const x of xs) {
+      const y = predict(draw.bhat, features(x));
+      if (inRange(y)) {
+        path += pen ? ` L ${xOf(x)} ${yOf(y)}` : `M ${xOf(x)} ${yOf(y)}`;
+        pen = true;
+      } else pen = false;
     }
+    if (path) el('path', { d: path, fill: 'none', stroke: '#1a1a1a', 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, svg);
   }
-  axisName(svg, 18, (m.t + h - m.b) / 2, 'predicted label', -90);
-  axisName(svg, (m.l + w - m.r) / 2, h - 8, 'true label');
-  const note = outside
-    ? `${outside} predictions fall outside this chart. On the dashed line, the prediction matches the true label.`
-    : 'Each point is a new input. On the dashed line, the prediction matches the true label.';
-  $('pred-note').textContent = note;
-  svg.setAttribute('aria-label', note);
+
+  // Training dots
+  for (let i = 0; i < TRAIN.xs.length; i++) {
+    const cx = xOf(TRAIN.xs[i]);
+    const y = TRAIN.ys[i];
+    const off = !inRange(y);
+    const cy = yOf(Math.max(SCATTER_YMIN, Math.min(SCATTER_YMAX, y)));
+    el('circle', off
+      ? { cx, cy, r: 3, fill: 'none', stroke: '#bbb', 'stroke-width': 1.25 }
+      : { cx, cy, r: 3, fill: '#333' }, svg);
+  }
+
+  axisName(svg, 14, (m.t + h - m.b) / 2, 'y', -90);
+  axisName(svg, (m.l + w - m.r) / 2, h - 8, 'x');
+  svg.setAttribute('aria-label', `Training data: ${TRAIN.xs.length} points`);
 }
 
 function render() {
   const state = read();
   $('val-p').textContent = String(state.p);
-  $('val-n').textContent = String(state.n);
   $('val-lam').textContent = formatLam(state.lam);
-  const here = atCurve(state.p, state.log);
-  const draw = spot ? evalDraw(spot, state.p, state.k, state.sigma, state.lam) : null;
-  drawRisk(state, here, draw);
-  drawPred(state, draw);
-  const name = state.p < state.n ? 'Before the spike' : state.p === state.n ? 'At the spike' : 'After the spike';
+  const here = results[state.p] ?? null;
+  drawRisk(state, here);
+  drawPred(state);
+  const name = state.p < state.n ? 'Before the spike'
+    : state.p === state.n ? 'At the spike' : 'After the spike';
   $('stats').innerHTML = `
     <span>${name}</span>
     <span>Test error <strong>${here ? fmt(here.risk) : '—'}</strong></span>
     <span>Train error <strong>${here ? fmt(here.train) : '—'}</strong></span>
-    <span>This training set <strong>${draw ? fmt(draw.risk) : '—'}</strong></span>
-    <span>Weight norm <strong>${draw ? fmt(draw.norm) : '—'}</strong></span>
+    <span>Weight norm <strong>${here ? fmt(here.norm) : '—'}</strong></span>
     <span>w / n <strong>${(state.p / state.n).toFixed(2)}</strong></span>`;
   $('regime').textContent = regimeCopy(state.p, state.n, here ? here.train : 1);
 }
+
 function rebuild() {
-  const state = read();
-  const built = buildCurve(state.n, state.k, state.sigma, state.lam);
-  curve = built.med;
-  spot = buildSpot(built.chosen, state.n, state.k, state.sigma, state.lam);
-  spotSeries = spot.series;
+  const { lam } = read();
+  results = [null];
+  for (let p = 1; p <= P_MAX; p++) results.push(fitWidth(p, lam));
+  curve = results.slice(1);
   render();
 }
 
-for (const id of ['sl-n', 'sl-lam']) $(id).addEventListener('input', rebuild);
+$('sl-lam').addEventListener('input', rebuild);
 $('sl-p').addEventListener('input', render);
-$('tog-log').addEventListener('change', render);
-$('btn-sample').addEventListener('click', () => { drawSeed++; rebuild(); });
 window.addEventListener('resize', render);
 rebuild();
 </script>

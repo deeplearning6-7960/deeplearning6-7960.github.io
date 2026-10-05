@@ -53,8 +53,12 @@
   <h2 class="group">Thu 10/1 — Generalization</h2>
   <ul class="demo-list">
     <li><a href="generalization/double-descent.html">
-      <div class="demo-title">Double descent</div>
-      <div class="demo-desc">A linear model. Test error falls as the width grows, spikes when the model can fit every training point, then falls again. Weight decay removes the spike.</div>
+      <div class="demo-title">01 — Double descent</div>
+      <div class="demo-desc">Test error falls as the model grows, spikes when it can exactly fit every training point, then falls again. Weight decay removes the spike.</div>
+    </a></li>
+    <li><a href="generalization/ar-extrapolation.html">
+      <div class="demo-title">02 — Autoregressive extrapolation</div>
+      <div class="demo-desc">Two ReLU MLPs predicting past the training region: a direct map from x to y, and an autoregressive model that rolls out from a window of recent values.</div>
     </a></li>
   </ul>
 </div>
